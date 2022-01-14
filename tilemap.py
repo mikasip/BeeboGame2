@@ -59,14 +59,14 @@ class TiledMap:
                     for x, y, gid, in layer:
                         tile = ti(gid)
                         if tile:
-                            surface_under.blit(tile, (x * self.tmxdata.tilewidth + layer.offsetx,
+                            surface_under.blit(tile.convert_alpha(), (x * self.tmxdata.tilewidth + layer.offsetx,
                                                 y * self.tmxdata.tileheight + layer.offsety))
             if layer.name[0] == "T":
                 if isinstance(layer, pytmx.TiledTileLayer):
                     for x, y, gid, in layer:
                         tile = ti(gid)
                         if tile:
-                            surface_over.blit(tile, (x * self.tmxdata.tilewidth + layer.offsetx,
+                            surface_over.blit(tile.convert_alpha(), (x * self.tmxdata.tilewidth + layer.offsetx,
                                                 y * self.tmxdata.tileheight + layer.offsety))
     def make_map(self):
         temp_surface_under = pg.Surface((self.width, self.height))
