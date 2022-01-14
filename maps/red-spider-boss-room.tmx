@@ -2,7 +2,7 @@
 <map version="1.2" tiledversion="1.2.5" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="32" tileheight="32" infinite="0" nextlayerid="13" nextobjectid="134">
  <tileset firstgid="1" source="Indoor.tsx"/>
  <tileset firstgid="769" source="Indoor_2.tsx"/>
- <tileset firstgid="993" source="../../UltimateGame/maps/Indoor.tsx"/>
+ <tileset firstgid="993" source="Indoor.tsx"/>
  <tileset firstgid="1761" source="Stairs.tsx"/>
  <layer id="9" name="U_Background" width="32" height="32">
   <data encoding="csv">

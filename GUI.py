@@ -49,7 +49,7 @@ class GuiObject:
         self.action = action
 
 class GuiGrid(GuiItem):
-    def __init__(self, width_multiplier, height_multiplier, title, cancel_text, ok_text, ncol, nrow, margin, items, close_action = None):
+    def __init__(self, width_multiplier, height_multiplier, title, cancel_text, ok_text, ncol, nrow, margin, items, close_action = None, space = 30):
         self.width = width_multiplier * WIDTH
         self.height = height_multiplier * HEIGHT
         self.ncol = ncol
@@ -66,6 +66,7 @@ class GuiGrid(GuiItem):
         self.menu_box_img = pg.image.load(resource_path('img/' + MENU_BOX)).convert_alpha()
         self.menu_box_img = pg.transform.scale(self.menu_box_img, (round(self.width), round(self.height)))
         self.image = None
+        self.space = space
         self.update_image()
         self.image_rect = self.image.get_rect(left = (WIDTH - self.width)/2, top = (HEIGHT - self.height)/2)
         GuiItem.__init__(self, self.width, self.height, self.image)
@@ -81,12 +82,13 @@ class GuiGrid(GuiItem):
         self.image.blit(self.menu_box_img, (0,0))
         title_size = 32
         text_size = 20
-        space = 30
 
         if self.title != None:
             title = GuiText(self.title, title_size, BLACK, 0.8*self.width, 0.3*self.height)
             title.blit_item(self.image, ((self.width - title.width)/2, self.margin))
-        
+        else:
+            title_size = 0
+                
         if self.cancel_text != None:
             col = BLACK
             if self.active_index == len(self.items):
@@ -107,13 +109,14 @@ class GuiGrid(GuiItem):
             if i == self.active_index:
                 col = RED
             gui_items.append(GuiText(item.text, 20, col, col_width, row_height))
+    
 
         index = 0
         for i in range(self.nrow):
             for j in range(self.ncol):
                 if index >= len(gui_items):
                     break
-                gui_items[index].blit_item(self.image, (self.margin + (j)*col_width  + (col_width - gui_items[index].width)/2, self.margin + title_size + i*row_height + space))        
+                gui_items[index].blit_item(self.image, (self.margin + (j)*col_width  + (col_width - gui_items[index].width)/2, self.margin + title_size + i*row_height + self.space))        
                 index += 1
 
     def handle_key_pressed(self, key):

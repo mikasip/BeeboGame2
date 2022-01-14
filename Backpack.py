@@ -13,6 +13,7 @@ from helpers import *
 from tilemap import *
 from Equipment import *
 from sprites.obstacles import *
+from sprites.OtherItem import DropSprite
 from GUI import *
 
 class Backpack(object):
@@ -32,9 +33,11 @@ class Backpack(object):
         self.can_not_wear_dialog_open = False
         self.game = game
         self.player:Player = player
-        self.can_change = True        
-        self.image = self.make_backpack_image()
+        self.can_change = True
+        self.selling = False
         self.max_space = 40
+        self.selection_menu:GuiGrid = None
+        self.image = self.make_backpack_image()
         
     def get_image(self):
         return self.image
@@ -56,6 +59,8 @@ class Backpack(object):
         self.image = self.make_backpack_image()
         
     def make_backpack_image(self):
+        if self.active_index > len(self.items):
+            self.active_index = len(self.items)
         if len(self.items) >= math.floor((WIDTH - 60) / 70):
             self.cols = math.floor((WIDTH - 60) / 70)
         else:
@@ -68,7 +73,7 @@ class Backpack(object):
         next_item_pos = vec(30, 80)
         self.rows = 1
         for i, item in enumerate(self.items):
-            bg_image, bg_image_rect = create_item_with_rect(item.image, 70, 70, next_item_pos.x, next_item_pos.y, (self.active_index == i))
+            bg_image, bg_image_rect = create_item_with_rect(item.image, 70, 70, next_item_pos.x, next_item_pos.y, (self.active_index == i), item.amount)
             image.blit(bg_image, bg_image_rect)
             if next_item_pos.x + 170 >= WIDTH:
                 next_item_pos.x = 30
@@ -99,17 +104,14 @@ class Backpack(object):
         image.blit(gold_text_img, gold_text_rect2)
         gold_icon_rect = self.game.gold_img.get_rect(left = WIDTH - MARGIN_LEFT - 22, top = MARGIN_BOT)
         image.blit(self.game.gold_img, gold_icon_rect)
-        if self.equip_dialog_open:
-            self.create_equip_dialog(image)
+        if self.selection_menu != None:
+            self.selection_menu.blit_item(image, "center")
             
         return image
     
     def change_active(self, key):
-        if self.equip_dialog_open:
-            if key == pg.K_RIGHT:
-                self.equip_index_active = 1
-            if key == pg.K_LEFT:
-                self.equip_index_active = 0
+        if self.selection_menu != None:
+            self.selection_menu.handle_key_pressed(key)
         else:
             self.active_index = move_in_matrix(self.cols, self.rows, self.active_index, len(self.items), key)
         self.image = self.make_backpack_image()
@@ -120,48 +122,38 @@ class Backpack(object):
             self.player.open_dialog = None
             self.player.wait = False
         else:
-            if self.items[self.active_index].type == "consumable":
-                self.use_consumable()
-            elif not self.items[self.active_index].type == "other_item":
-                if self.items[self.active_index].type in map(lambda o : o.type, self.player.equipped_gear.equipped):
-                    message = "You are already wearing " + str(self.items[self.active_index].type)
-                    self.game.error_message.create_error_dialog(message)
-                elif self.player.level < self.items[self.active_index].level:
-                    message = "Level needed: " + str(self.items[self.active_index].level)
-                    self.game.error_message.create_error_dialog(message)
-                elif not self.equip_dialog_open:
-                    self.create_equip_dialog(self.image)
-                    self.equip_dialog_open = True
-                else:
-                    if self.equip_dialog_open:
-                        if self.equip_index_active == 0:
-                            self.append_item(self.items[self.active_index])
-                            self.equip_dialog_open = False
-                        else:
-                            self.equip_dialog_open = False
-                        self.image = self.make_backpack_image()
+            if self.selection_menu == None:
+                self.create_equip_dialog()
+            else:
+                self.selection_menu.handle_key_pressed(pg.K_SPACE)
                     
-    def create_equip_dialog(self, image):
-        
-        bg_surface = pg.Surface(self.background_rect.size)
-        bg_surface.blit(self.background, (0,0))
-        purchase_surface = pg.transform.scale(bg_surface, (360, 110))
-        purchase_text = self.font.render(self.make_action_text(), True, BLACK)
-        purchase_image, purchase_rect = create_item_with_rect(purchase_text, 150, 50, 30, 30, (self.equip_index_active == 0))
-        cancel_text = self.font.render("Cancel", True, BLACK)
-        cancel_image, cancel_rect = create_item_with_rect(cancel_text, 150, 50, 180, 30, (self.equip_index_active == 1))
-        purchase_surface.blit(purchase_image, purchase_rect)
-        purchase_surface.blit(cancel_image, cancel_rect)
-        purchase_surface_rect = purchase_surface.get_rect(top = (HEIGHT - 110) / 2, left = (WIDTH - 360) / 2)
-        image.blit(purchase_surface, purchase_surface_rect)
+    def create_equip_dialog(self):
+        active_item = self.items[self.active_index]
+        items = []
+        if active_item.type == "consumable":
+            items.append(GuiObject("Use", self.use_consumable))
+            items.append(GuiObject("Add to quick use", self.add_to_quick_use))
+        elif active_item.type != "other_item":
+            items.append(GuiObject("Equip", lambda: self.append_item(active_item)))
+        items.append(GuiObject("Drop", self.drop_item))
+        items.append(GuiObject("Cancel", self.close_selection_menu))
+        self.selection_menu = GuiGrid(0.3, 0.4, None, None, None, 1, len(items), 40, items, 10)
+        self.selection_menu.blit_item(self.image, "center")
     
-    def make_action_text(self):
-        return "Equip"
-        
+    def close_selection_menu(self):
+        self.selection_menu = None
+        self.image = self.make_backpack_image()
+    
+    def drop_item(self):
+        self.game.current_map.items.append(DropSprite(self.game, self.player.pos[0], self.player.pos[1], self.items[self.active_index]))
+        self.player.change_item_count(self.items[self.active_index], -1)
+        self.selection_menu = None
+        self.image = self.make_backpack_image()
+
     def append_item(self, item):
         self.items.remove(item)
         self.player.equipped_gear.equipped.append(item)
-        self.equip_dialog_open = False
+        self.selection_menu = None
         self.player.update_stats()
         self.image = self.make_backpack_image()
         self.player.equipped_gear.equipped_image = self.player.equipped_gear.make_image()
@@ -171,5 +163,13 @@ class Backpack(object):
     
     def use_consumable(self):
         self.player.use_consumable(self.items[self.active_index])
-        self.items.remove(self.items[self.active_index])
+        self.player.change_item_count(self.items[self.active_index], -1)
         self.image = self.make_backpack_image()
+    
+    def add_to_quick_use(self):
+        self.player.quick_use.insert(0, self.items[self.active_index])
+        if len(self.player.quick_use) > self.player.quick_use_max_space:
+            self.player.quick_use = self.player.quick_use[:2]
+        self.selection_menu = None
+        self.image = self.make_backpack_image()
+        self.player.skillsGUI.update_skills(self.player)

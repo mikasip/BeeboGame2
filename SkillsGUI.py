@@ -7,7 +7,8 @@ from helpers import *
 class SkillsGUI:
     def __init__(self, player):
         self.player = player
-        self.bgsurface = pg.Surface((300,50))
+        self.width, self.height = (400, 50)
+        self.bgsurface = pg.Surface((self.width, self.height))
         self.bgsurface.fill(LIGHTGREY)
         self.font = BODY_FONT
         self.hp_font = BODY_FONT_SMALL
@@ -16,13 +17,13 @@ class SkillsGUI:
         q_img = self.hp_font.render("Q", True, BLACK)
         self.bgsurface.blit(q_img, (30,10))
         pg.draw.arc(self.bgsurface, (0,0,0), [5,5,40,40], 0, 2*pi, 2)
-        pg.draw.line(self.bgsurface, BLACK, [0, 0], [300,0], 2)
-        pg.draw.line(self.bgsurface, BLACK, [298, 0], [298,50], 2)
+        pg.draw.line(self.bgsurface, BLACK, [0, 0], [self.width,0], 2)
+        pg.draw.line(self.bgsurface, BLACK, [self.width - 2, 0], [self.width - 2, self.height], 2)
         self.image = self.bgsurface
-        self.transparent_surface = pg.Surface((300,50), pg.SRCALPHA)
+        self.transparent_surface = pg.Surface((self.width, self.height), pg.SRCALPHA)
         self.rect = self.image.get_rect()
         self.rect.x = 0
-        self.rect.y = HEIGHT - 50
+        self.rect.y = HEIGHT - self.height
         
     def update_cooldowns(self, player):
         surface = self.bgsurface.copy()
@@ -58,3 +59,11 @@ class SkillsGUI:
             padding += 50
         self.bgsurface = surface
         self.image = self.bgsurface
+        keys = ["Z", "X"]
+        for i, item in enumerate(player.quick_use):
+            pg.draw.circle(surface, LIGHTERGREY, (padding,25), 20)
+            surface.blit(pg.image.load(resource_path('img/' + item.file) + ".png").convert_alpha(), (padding - 25 + 9, 9))
+            q_img = self.hp_font.render(keys[i], True, BLACK)
+            surface.blit(q_img, (padding + 5,10))
+            pg.draw.arc(surface, (0,0,0), [padding - 20, 5,40,40], 0, 2*pi, 2)
+            padding += 50

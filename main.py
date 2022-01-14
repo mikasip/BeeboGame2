@@ -134,6 +134,7 @@ class Game:
                         'active_quests': [],
                         'completed_quests': [],
                         'spells': [],
+                        'quick_use': [],
                         'effects': [],
                         },
                 'current_map': 'village1',
@@ -166,6 +167,7 @@ class Game:
                         'active_quests': self.player.active_quests,
                         'completed_quests': self.player.completed_quests,
                         'spells': self.player.spells,
+                        'quick_use': list(map(lambda item: item.name, self.player.quick_use)),
                         'effects': list(map(lambda effect: effect.to_hash(), self.player.effects))
                         },
                     'current_map': self.current_map.name,

@@ -42,19 +42,20 @@ def rotate(surface, angle, offset):
     rect = rotated_image.get_rect(top=rotated_offset.y, left=rotated_offset.x)
     return rotated_image, rect  # Return the rotated image and shifted rect.
 
-def create_item_with_rect(image, width, height, pos_x, pos_y, active):
+def create_item_with_rect(image, width, height, pos_x, pos_y, active, amount = 1):
     image_to_return = image        
     image_rect = image.get_rect() 
     image_pos_x = (width - image_rect.width) / 2
     image_pos_y = (height - image_rect.height) / 2
+    image_to_return = pg.Surface((width, height), pg.SRCALPHA)
     if active:
-        image_to_return = pg.Surface((width, height))
         image_to_return.fill(LIGHTGREY)
-        image_rect = image.get_rect(left = image_pos_x, top = image_pos_y)
-        image_to_return.blit(image, image_rect)
-        image_rect = image_to_return.get_rect(left = pos_x, top = pos_y)
-    else:
-        image_rect = image.get_rect(left = image_pos_x + pos_x, top =  pos_y + image_pos_y)
+    image_rect = image.get_rect(left = image_pos_x, top = image_pos_y)
+    image_to_return.blit(image, image_rect)
+    image_rect = image_to_return.get_rect(left = pos_x, top = pos_y)
+    if amount > 1:
+        text = BODY_FONT_SMALL.render(str(amount), True, BLACK)
+        image_to_return.blit(text, text.get_rect(left = width - 20, top = height - 20))
     return image_to_return, image_rect
 
 def move_in_matrix(cols, rows, active_index, max_index, key):

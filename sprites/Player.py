@@ -73,6 +73,9 @@ class Player(Fighter):
         self.image_index = 0
         self.max_spells = 0
         self.effects:list[PlayerEffect] = []
+        self.quick_use = []
+        self.quick_use_max_space = 2
+        self.quick_use_cd = 0
         
     def load_data(self, data):
         for key in data:
@@ -99,6 +102,10 @@ class Player(Fighter):
             new_effect = PlayerEffect(effect['effect'], effect['time'], effect['amount'], effect['item_name'])
             self.effects.append(new_effect)
             Message(self.game, new_effect.message, new_effect.time, self, BLUE)
+        for item in data['quick_use']:
+            item = list(filter(lambda i: i.name == item, self.backpack.items))
+            if len(item) > 0:
+                self.quick_use.append(item[0])
         self.quests.update_image()
         self.update_stats(None, True)
         self.make_spells()
@@ -209,6 +216,10 @@ class Player(Fighter):
                 self.cast_spell("S")
             elif keys[pg.K_d]:
                 self.cast_spell("D")
+            elif keys[pg.K_z]:
+                self.quick_use_consumable(0)
+            elif keys[pg.K_x]:
+                self.quick_use_consumable(1)
             if keys[pg.K_LEFT]:
                 self.vel.x = -PLAYER_SPEED
             elif keys[pg.K_RIGHT]:
@@ -270,7 +281,16 @@ class Player(Fighter):
                         message = message[:-2]
                         if len(list(filter(lambda x: x.message == message, self.game.messages))) == 0:
                             Message(self.game, message, 2, self)
-
+    
+    def quick_use_consumable(self, index):
+        if self.quick_use_cd <= 0:
+            if len(self.quick_use) > index:
+                item = self.quick_use[index]
+                backpack_items = list(filter(lambda i: i.name == item.name, self.backpack.items))
+                if len(backpack_items) > 0:
+                    self.quick_use_cd = 1
+                    self.change_item_count(backpack_items[0], -1)
+                    self.use_consumable(item)
     
     def make_spells(self):
         keys = ["W", "E", "R", "A", "S", "D"]
@@ -400,6 +420,8 @@ class Player(Fighter):
             else:
                 if self.spell_cast_timer >= 0:
                     self.spell_cast_timer -= self.game.dt
+                if self.quick_use_cd > 0:
+                    self.quick_use_cd -= self.game.dt
                 for spell in self.spell_objs:
                     if spell.current_cooldown > 0:
                         spell.current_cooldown -= self.game.dt
@@ -559,6 +581,8 @@ class Player(Fighter):
             self.hit_points += consumable.hp
         else:
             self.hit_points = self.max_hit_points
+        if consumable.hp > 0:
+            Message(self.game, "+" + str(consumable.hp), 1, self, GREEN)
         for effect in consumable.effects:
             self.effects.append(effect)
             Message(self.game, effect.message, effect.time, self, BLUE)
