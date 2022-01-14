@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.2" tiledversion="1.2.5" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="32" tileheight="32" infinite="0" nextlayerid="13" nextobjectid="134">
- <tileset firstgid="1" source="Indoor.tsx"/>
- <tileset firstgid="769" source="Indoor_2.tsx"/>
- <tileset firstgid="993" source="Indoor.tsx"/>
- <tileset firstgid="1761" source="Stairs.tsx"/>
+ <tileset firstgid="1" source="../../BeeboGame/maps/Indoor.tsx"/>
+ <tileset firstgid="769" source="../../BeeboGame/maps/Indoor_2.tsx"/>
+ <tileset firstgid="993" source="../../UltimateGame/maps/Indoor.tsx"/>
+ <tileset firstgid="1761" source="../../BeeboGame/maps/Stairs.tsx"/>
  <layer id="9" name="U_Background" width="32" height="32">
   <data encoding="csv">
 338,340,340,340,340,1333,1353,1353,1331,1332,340,340,340,1332,1332,340,340,340,340,340,340,1332,1332,1332,1332,340,340,340,340,340,340,337,
@@ -244,7 +244,7 @@
   <object id="133" name="red-spider-corridor2" x="192" y="0" width="64" height="32">
    <properties>
     <property name="pos_x" type="int" value="7"/>
-    <property name="pos_y" type="int" value="29"/>
+    <property name="pos_y" type="int" value="30"/>
    </properties>
   </object>
  </objectgroup>
