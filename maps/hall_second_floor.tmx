@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.2" tiledversion="1.2.5" orientation="orthogonal" renderorder="right-down" width="10" height="10" tilewidth="32" tileheight="32" infinite="0" nextlayerid="8" nextobjectid="14">
+ <tileset firstgid="1" source="Indoor.tsx"/>
+ <tileset firstgid="769" source="Stairs.tsx"/>
+ <tileset firstgid="1601" source="Beebos.tsx"/>
+ <layer id="1" name="U_Background" width="10" height="10">
+  <data encoding="csv">
+338,340,340,340,340,340,340,340,340,337,
+317,225,225,225,225,225,225,225,225,315,
+317,249,249,249,249,249,249,249,249,315,
+317,273,273,273,273,273,273,273,273,315,
+317,361,361,361,361,361,361,361,361,315,
+317,361,361,361,361,361,361,361,361,315,
+317,361,361,361,361,361,361,361,361,315,
+317,361,361,361,361,361,361,361,361,315,
+317,361,361,361,361,361,361,361,361,315,
+317,1510,1509,291,292,292,292,292,292,313
+</data>
+ </layer>
+ <objectgroup id="6" name="Beebos">
+  <object id="10" name="scared-beebo" type="beebo" x="111" y="115" width="75" height="60">
+   <properties>
+    <property name="quest" value="quest-hall"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <objectgroup id="7" name="Treasures">
+  <object id="12" name="hall-treasure1" type="treasure" x="256" y="192" width="31" height="47">
+   <properties>
+    <property name="way_x" type="int" value="-1"/>
+    <property name="way_y" type="int" value="0"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <layer id="2" name="U_Furniture" width="10" height="10">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,80,0,0,
+0,481,481,0,0,0,0,0,0,0,
+0,505,505,0,0,0,0,105,106,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,302,0,
+0,0,0,0,0,0,0,0,326,0,
+0,0,0,0,0,0,0,0,325,0,
+0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <objectgroup id="4" name="Collisions">
+  <object id="1" x="224" y="128" width="64" height="32"/>
+  <object id="2" x="32" y="128" width="64" height="32"/>
+  <object id="3" x="0" y="0" width="320" height="128"/>
+  <object id="4" x="288" y="128" width="32" height="192"/>
+  <object id="5" x="96" y="288" width="192" height="32"/>
+  <object id="6" x="0" y="128" width="32" height="192"/>
+  <object id="7" x="256" y="192" width="32" height="96"/>
+  <object id="13" x="125" y="122" width="52" height="39"/>
+ </objectgroup>
+ <objectgroup id="5" name="Doorways">
+  <object id="8" name="hall" x="32" y="288" width="64" height="32">
+   <properties>
+    <property name="pos_x" type="int" value="2"/>
+    <property name="pos_y" type="int" value="6"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <layer id="3" name="U_Furniture2" width="10" height="10">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,1621,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,301,0,
+0,0,0,0,0,0,0,0,325,0,
+0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+</map>
