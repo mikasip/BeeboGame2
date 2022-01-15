@@ -8,8 +8,8 @@ class SkillsGUI:
     def __init__(self, player):
         self.player = player
         self.width, self.height = (400, 50)
-        self.bgsurface = pg.Surface((self.width, self.height))
-        self.bgsurface.fill(LIGHTGREY)
+        self.bgsurface = pg.Surface((self.width, self.height), pg.SRCALPHA)
+        #self.bgsurface.fill(LIGHTGREY)
         self.font = BODY_FONT
         self.hp_font = BODY_FONT_SMALL
         pg.draw.circle(self.bgsurface, LIGHTERGREY, (25,25), 20)
@@ -17,8 +17,8 @@ class SkillsGUI:
         q_img = self.hp_font.render("Q", True, BLACK)
         self.bgsurface.blit(q_img, (30,10))
         pg.draw.arc(self.bgsurface, (0,0,0), [5,5,40,40], 0, 2*pi, 2)
-        pg.draw.line(self.bgsurface, BLACK, [0, 0], [self.width,0], 2)
-        pg.draw.line(self.bgsurface, BLACK, [self.width - 2, 0], [self.width - 2, self.height], 2)
+        #pg.draw.line(self.bgsurface, BLACK, [0, 0], [self.width,0], 2)
+        #pg.draw.line(self.bgsurface, BLACK, [self.width - 2, 0], [self.width - 2, self.height], 2)
         self.image = self.bgsurface
         self.transparent_surface = pg.Surface((self.width, self.height), pg.SRCALPHA)
         self.rect = self.image.get_rect()

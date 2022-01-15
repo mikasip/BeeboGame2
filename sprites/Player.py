@@ -102,10 +102,11 @@ class Player(Fighter):
             new_effect = PlayerEffect(effect['effect'], effect['time'], effect['amount'], effect['item_name'])
             self.effects.append(new_effect)
             Message(self.game, new_effect.message, new_effect.time, self, BLUE)
+        self.quick_use = []
         for item in data['quick_use']:
-            item = list(filter(lambda i: i.name == item, self.backpack.items))
-            if len(item) > 0:
-                self.quick_use.append(item[0])
+            items = list(filter(lambda i: i.name == item, self.backpack.items))
+            if len(items) > 0:
+                self.quick_use.append(items[0])
         self.quests.update_image()
         self.update_stats(None, True)
         self.make_spells()

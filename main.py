@@ -339,8 +339,8 @@ class Game:
         self.opened_treasures = self.game_dict['opened_treasures']
         self.collected_items = self.game_dict['collected_items']
         self.player = Player(self, self.game_dict['player']['pos_x'], self.game_dict['player']['pos_y'])
-        self.player.load_data(self.game_dict['player'])
         self.player.backpack.load_data(self.game_dict['player']['inventory'])
+        self.player.load_data(self.game_dict['player'])
         self.discussion_handler = DiscussionHandler()
         self.error_message = ErrorMessageHandler(pg.image.load(resource_path('img/' + MENU_BOX)).convert_alpha())
             

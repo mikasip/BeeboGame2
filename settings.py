@@ -311,6 +311,18 @@ ITEMS = {
                 "requirements": [],
                 "is_sellable": True
         },
+        'potion_of_fortune_craftable': {
+                "name": "Potion of Fortune",
+                "file": "potion_of_fortune",
+                "hp": 0,
+                "effects": [{'effect': 'fortune', 'time': 60, 'amount': 5}],
+                "price": 10,
+                "level": 1,
+                "type": "consumable",
+                "amount": 1,
+                "requirements": [],
+                "is_sellable": True
+        },
         # 'basic_axe': {
                     #    "file": "basic_axe",
                     #    "name": "Steel axe",
@@ -1468,8 +1480,8 @@ MOBS = {
                 'hp': 70,
                 'damage': 20,
                 'defence': 8,
-                'exp': 45,
-                'gold': 50,
+                'exp': 40,
+                'gold': 30,
                 'quest_drops': {
                         'slime_quest': [
                                 { 
@@ -1511,7 +1523,7 @@ MOBS = {
                 'damage': 20,
                 'defence': 10,
                 'exp': 130,
-                'gold': 80,
+                'gold': 50,
                 'quest_drops': {},
                 'drops': LOOTS['tier2'] + [{'item': ITEMS['green_spider_leg'], 'prob': 1}],
                 'no_hit': False,
@@ -1528,7 +1540,7 @@ MOBS = {
                 'damage': 28,
                 'defence': 10,
                 'exp': 180,
-                'gold': 100,
+                'gold': 60,
                 'quest_drops': {},
                 'drops': LOOTS['tier2'] + [{'item': ITEMS['red_spider_leg'], 'prob': 1}],
                 'no_hit': False,
@@ -1693,8 +1705,8 @@ SPECIAL_TREASURE_DROPS = {
 }
 
 CONTINUING_TREASURES = ["apple_tree"]
-SELLERS = ["weapon_seller", "armor_seller", "store_seller", "bakery-beebo", "seed_seller", "crafting_beebo", "mage_beebo", "spider-beebo"]
-BUYERS = ["seller-beebo1", "buyer-beebo2"]
+SELLERS = ["weapon_seller", "armor_seller", "store_seller", "weapon_seller2", "armor_seller2", "store_seller2", "bakery-beebo", "seed_seller", "crafting_beebo", "crafting_beebo2", "mage_beebo", "spider-beebo"]
+BUYERS = ["seller-beebo1", "buyer-beebo2", "buyer-beebo3"]
 
 ARMOR_TYPES = ["boots", "chestplate", "plate", "gloves", "pants", "ring", "cloak", "helmet"]
 
@@ -1703,6 +1715,9 @@ SHOPS = {
                 # ITEMS['basic_axe],
                 ITEMS['steel_sword'],
                 ITEMS['steel_spear']],
+        "weapon_seller": [
+                ITEMS['bronze_sword'],
+                ITEMS['silver_sword']],
         "armor_seller": [
                 ITEMS['leather_boots'],
                 ITEMS['leather_gloves'],
@@ -1711,8 +1726,17 @@ SHOPS = {
                 ITEMS['basic_ring'],
                 ITEMS['leather_cloak']
         ],
+        "armor_seller2": [
+                ITEMS['red_leather_boots'],
+                ITEMS['red_leather_gloves'],
+                ITEMS['red_leather_pants'],
+                ITEMS['red_leather_chestplate'],
+        ],
         "store_seller": [
                     ITEMS['small_hp_potion']
+                ],
+        "store_seller2": [
+                    ITEMS['normal_hp_potion']
                 ],
         "bakery-beebo": [
                 ITEMS['apple_pie'],
@@ -1723,6 +1747,8 @@ SHOPS = {
                 #ITEMS['scissors']
         ],
         "crafting_beebo": [
+        ],
+        "crafting_beebo2": [
                 ITEMS['wool_boots'],
                 ITEMS['wool_pants'],
                 ITEMS['wool_shirt'],
@@ -1741,8 +1767,7 @@ SHOPS = {
                 ITEMS['potion_of_fortune'],
                 ITEMS['red_gem'],
                 ITEMS['blue_gem'],
-                ITEMS['green_gem'],
-                ITEMS['sword_of_ancient_gods']
+                ITEMS['green_gem']
         ]
 }
 
@@ -1755,6 +1780,10 @@ HEAD_LINES = {
         "crafting_beebo": "Crafting store",
         "mage_beebo": "Magic store",
         "spider-beebo": "Potion store",
+        "weapon_seller2": "Weapon store",
+        "armor_seller2": "Armor store",
+        "store_seller2": "Potion store",
+        "crafting_beebo2": "Crafting store",
         }
         
     

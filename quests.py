@@ -133,5 +133,27 @@ QUESTS = {
             'gold': 700,
             'exp': 700,
         },
+    },
+    'village2-spider-quest': {
+        'id': 'village2-spider-quest',
+        'name': "Get rid of spiders" ,
+        'dialog': "The spiders have taken over our city!",
+        'description': 'Help the beebo in the Secret maze to start his business as a potion seller. Bring him 30 Green Spider Legs.',
+        'done_dialog': 'Ahh, finally I can start my business!',
+        'not_done_dialog': 'Green Spider Legs are the only ingredient missing from my potion cocktail.',
+        'only_once': 'true',
+        'mission': 
+            {
+                'type': 'collect',
+                'text': 'Collect 30 Green Spider Legs',
+                'item': ['Green Spider Leg'],
+                'file': ['green_spider_leg'],
+                'amount': [30],
+            },
+        'reward': {
+            'items': [],
+            'gold': 700,
+            'exp': 700,
+        },
     }
 }
