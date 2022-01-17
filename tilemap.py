@@ -54,13 +54,11 @@ class TiledMap:
     def render(self, surface_under, surface_over):
         ti = self.tmxdata.get_tile_image_by_gid
         for layer in self.tmxdata.visible_layers:
-            tile_count = 0
             if layer.name[0] == "U":
                 if isinstance(layer, pytmx.TiledTileLayer):
                     for x, y, gid, in layer:
                         tile = ti(gid)
                         if tile:
-                            tile_count += 1
                             surface_under.blit(tile, (x * self.tmxdata.tilewidth + layer.offsetx,
                                                 y * self.tmxdata.tileheight + layer.offsety))
             if layer.name[0] == "T":
@@ -68,12 +66,10 @@ class TiledMap:
                     for x, y, gid, in layer:
                         tile = ti(gid)
                         if tile:
-                            tile_count += 1
                             surface_over.blit(tile, (x * self.tmxdata.tilewidth + layer.offsetx,
                                                 y * self.tmxdata.tileheight + layer.offsety))
-            print(layer.name + " has " + str(tile_count) + " tiles.")
     def make_map(self):
-        temp_surface_under = pg.Surface((self.width, self.height))
+        temp_surface_under = pg.Surface((self.width, self.height), pg.SRCALPHA)
         temp_surface_over = pg.Surface((self.width, self.height), pg.SRCALPHA)
         self.render(temp_surface_under, temp_surface_over)
         return temp_surface_under, temp_surface_over
