@@ -1715,7 +1715,7 @@ SHOPS = {
                 # ITEMS['basic_axe],
                 ITEMS['steel_sword'],
                 ITEMS['steel_spear']],
-        "weapon_seller": [
+        "weapon_seller2": [
                 ITEMS['bronze_sword'],
                 ITEMS['silver_sword']],
         "armor_seller": [
@@ -1731,6 +1731,8 @@ SHOPS = {
                 ITEMS['red_leather_gloves'],
                 ITEMS['red_leather_pants'],
                 ITEMS['red_leather_chestplate'],
+                ITEMS['steel_boots'],
+                ITEMS['steel_gloves']
         ],
         "store_seller": [
                     ITEMS['small_hp_potion']
@@ -1747,8 +1749,11 @@ SHOPS = {
                 #ITEMS['scissors']
         ],
         "crafting_beebo": [
+                ITEMS['wool_boots'],
+                ITEMS['wool_pants'],
+                ITEMS['wool_shirt'],
         ],
-        "crafting_beebo2": [
+        "crafting_beebo": [
                 ITEMS['wool_boots'],
                 ITEMS['wool_pants'],
                 ITEMS['wool_shirt'],

@@ -156,9 +156,9 @@ class Player(Fighter):
                 self.damage += effect.amount
         self.max_hit_points = 40 + 20*self.total_strength
         self.crit_chance = 1 - 30/(30 + self.total_fortune)
-        self.crit_ratio = math.pow(1.05, self.total_fortune)
+        self.crit_ratio = math.pow(1.07, self.total_fortune)
         self.run_multiplier = 1.2 + 0.05*self.total_agility
-        self.attack_speed *= math.pow(0.97, self.total_agility)
+        self.attack_speed *= math.pow(0.96, self.total_agility)
         if not load_data:
             strength_diff = self.total_strength - self.prev_strength
             self.hit_points += strength_diff*20
