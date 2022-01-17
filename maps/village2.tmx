@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.2" tiledversion="1.2.5" orientation="orthogonal" renderorder="right-down" width="50" height="40" tilewidth="32" tileheight="32" infinite="0" nextlayerid="8" nextobjectid="71">
- <tileset firstgid="1" source="../../BeeboGame/maps/Outdoor.tsx"/>
+ <tileset firstgid="1" source="../../BeeboGame2/maps/Outdoor.tsx"/>
  <tileset firstgid="361" source="../../UltimateGame/maps/Indoor.tsx"/>
- <tileset firstgid="1129" source="../../BeeboGame/maps/Hanging_signs.tsx"/>
+ <tileset firstgid="1129" source="../../BeeboGame2/maps/Hanging_signs.tsx"/>
  <layer id="1" name="U_Background" width="50" height="40">
   <data encoding="csv">
 201,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,203,

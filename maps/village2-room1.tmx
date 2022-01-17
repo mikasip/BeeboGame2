@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.2" tiledversion="1.2.5" orientation="orthogonal" renderorder="right-down" width="16" height="12" tilewidth="32" tileheight="32" infinite="0" nextlayerid="7" nextobjectid="13">
- <tileset firstgid="1" source="../../BeeboGame/maps/Indoor.tsx"/>
- <tileset firstgid="769" source="../../BeeboGame/maps/Stairs.tsx"/>
+ <tileset firstgid="1" source="../../BeeboGame2/maps/Indoor.tsx"/>
+ <tileset firstgid="769" source="../../BeeboGame2/maps/Stairs.tsx"/>
  <tileset firstgid="1601" source="../../UltimateGame/maps/Indoor_2.tsx"/>
  <layer id="1" name="U_Background" width="16" height="12">
   <data encoding="csv">
