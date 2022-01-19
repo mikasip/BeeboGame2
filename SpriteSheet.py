@@ -12,11 +12,13 @@ class SpriteSheet(object):
     # This points to our sprite sheet image
     sprite_sheet = None
  
-    def __init__(self, file_name):
+    def __init__(self, file_name = None):
         """ Constructor. Pass in the file name of the sprite sheet. """
  
         # Load the sprite sheet.
-        self.sprite_sheet = pg.image.load(file_name).convert_alpha()
+        self.sprite_sheet = None
+        if file_name != None:
+            self.sprite_sheet = pg.image.load(file_name).convert_alpha()
  
  
     def get_image(self, x, y, width, height):

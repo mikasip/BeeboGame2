@@ -51,10 +51,6 @@ class Player(Fighter):
         self.equipped_gear = EquippedGearGui(self.background, self, self.close_all_dialogs, self.add_to_backpack)
         self.quests = Quests(self.background, self.close_all_dialogs)
         self.door_locked_dialog = GuiGrid(0.5, 0.2, "Door locked!", None, None, 1,1, 40, [])
-        self.img_standing = game.hero_img_standing
-        self.img_walking1 = game.hero_img_walking1
-        self.img_walking2 = game.hero_img_walking2
-        self.hit_frames = game.hero_hit_frames
         self.open_dialog = None
         self.statbar = Statbar(self)
         self.skillsGUI = SkillsGUI(self)
@@ -76,6 +72,16 @@ class Player(Fighter):
         self.quick_use = []
         self.quick_use_max_space = 2
         self.quick_use_cd = 0
+        self.body = BODY_IMAGES[4]
+        self.eyes = EYE_IMAGES[1]
+        self.hair = HAIR_IMAGES[4]
+        self.img_standing = None
+        self.img_walking1 = None
+        self.img_walking2 = None
+        self.hit_frames = None
+        self.sprite_sheet:SpriteSheet = SpriteSheet()
+        self.update_sprites()
+
         
     def load_data(self, data):
         for key in data:
@@ -89,7 +95,6 @@ class Player(Fighter):
                 self.img_standing = new_item.standing_image
                 self.img_walking1 = new_item.walking_image1
                 self.img_walking2 = new_item.walking_image2
-                self.hit_frames = new_item.hit_frames
             elif item["type"] in ["cloak", "helmet", "boots", "chestplate", "ring", "pants", "gloves"]:
                 new_item = Armor(self.game, item)
             self.equipped_gear.equipped.append(new_item)
@@ -112,6 +117,9 @@ class Player(Fighter):
         self.make_spells()
 
     def update_stats(self, new_attribute = None, load_data = False):
+        weapon_img = None
+        boots_img = None
+        gloves_img = None
         self.prev_strength = self.total_strength
         if new_attribute == "strength":
             self.strength += 1
@@ -136,11 +144,16 @@ class Player(Fighter):
                 self.img_walking2 = item.walking_image2
                 self.hit_frames = item.hit_frames
                 no_weapon = False
+                weapon_img = item.name
             elif isinstance(item, Armor):
                 self.defence += item.defence
                 self.total_agility += item.agility
                 self.total_strength += item.strength
                 self.total_fortune += item.fortune
+                if item.type == "boots":
+                    boots_img = item.name
+                if item.type == "gloves":
+                    gloves_img = item.name
         self.defence += self.total_strength
         self.damage += self.level
         for effect in self.effects:
@@ -176,6 +189,7 @@ class Player(Fighter):
         for level in MAX_SPELLS_PER_LEVEL.keys():
             if self.game.player.level >= level:
                 self.max_spells = MAX_SPELLS_PER_LEVEL[level]
+        self.update_sprites(boots_img, weapon_img, gloves_img)
         
     def update_hit_points(self, damage):
         if damage > 0:
@@ -438,7 +452,7 @@ class Player(Fighter):
                 elif self.hit_period > 0:
                     frame = math.floor(((HIT_COOLDOWN/3)*self.attack_speed - self.hit_period) / ((HIT_COOLDOWN*self.attack_speed/(3*4))))
                     self.image_index = 3 + frame
-                    self.current_image = self.hit_frames.get_image(frame * 100, 0, 100, 100)
+                    self.current_image = self.sprite_sheet.get_image(self.image_index * 150, 0, 150, 150)
                 else:
                     self.last_updated = self.last_updated - 1
                 angle = angle_between(vec(1,0), self.way)
@@ -590,6 +604,26 @@ class Player(Fighter):
             self.update_stats()
         self.update_hp_bar()
         self.statbar.update()
+    
+    def update_sprites(self, feet = None, weapon = None,  gloves = None):
+        surface = pg.Surface((1050, 150), pg.SRCALPHA)
+        feet_img = "feet_black.png"
+        if feet != None:
+            feet_img = feet + '.png'
+        surface.blit(pg.image.load(resource_path('img/' + feet_img)).convert_alpha(), (0,0))
+        if weapon != None:
+            surface.blit(pg.image.load(resource_path('img/' + "weapon_" + weapon + ".png")).convert_alpha(), (0,0))
+        surface.blit(pg.image.load(resource_path('img/' + self.body + ".png")).convert_alpha(), (0,0))
+        if gloves != None:
+            surface.blit(pg.image.load(resource_path('img/' + "hands_" + gloves + ".png")).convert_alpha(), (0,0))
+        surface.blit(pg.image.load(resource_path('img/' + self.eyes + ".png")).convert_alpha(), (0,0))
+        if self.hair != None:
+            surface.blit(pg.image.load(resource_path('img/' + self.hair + ".png")).convert_alpha(), (0,0))
+        surface.blit(pg.image.load(resource_path('img/' + "backpack_gray" + ".png")).convert_alpha(), (0,0))
+        self.sprite_sheet.sprite_sheet = surface
+        self.img_standing = self.sprite_sheet.get_image(0,0,150,150)
+        self.img_walking1 = self.sprite_sheet.get_image(150,0,150,150)
+        self.img_walking2 = self.sprite_sheet.get_image(300,0,150,150)
 
 class CastableSpell:
     def __init__(self, spell, key):

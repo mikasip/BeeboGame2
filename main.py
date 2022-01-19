@@ -35,7 +35,7 @@ class Game:
     def __init__(self):
         pg.init()
         
-        self.screen = pg.display.set_mode((WIDTH, HEIGHT), pg.FULLSCREEN)
+        self.screen = pg.display.set_mode((WIDTH, HEIGHT), pg.FULLSCREEN | pg.SCALED)
         pg.display.set_caption(TITLE)
         self.clock = pg.time.Clock()
         self.img_folder = path.join(path.dirname(__file__), 'img')
@@ -452,11 +452,11 @@ class Game:
     def run(self):
         # game loop - set self.playing = False to end the game
         self.playing = True
-        self.network = Network()
-        playerId = self.network.getId()
-        if playerId != None:
-            self.player.id = int(playerId)
-            self.connected = True
+        #self.network = Network()
+        #playerId = self.network.getId()
+        #if playerId != None:
+        #    self.player.id = int(playerId)
+        #    self.connected = True
         while self.playing:
             self.dt = self.clock.tick(FPS) / 1000
             self.game_state = self.send_to_server(["get"])
