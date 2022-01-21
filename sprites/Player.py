@@ -72,9 +72,9 @@ class Player(Fighter):
         self.quick_use = []
         self.quick_use_max_space = 2
         self.quick_use_cd = 0
-        self.body = BODY_IMAGES[4]
+        self.body = BODY_IMAGES[6]
         self.eyes = EYE_IMAGES[1]
-        self.hair = HAIR_IMAGES[4]
+        self.hair = HAIR_IMAGES[10]
         self.img_standing = None
         self.img_walking1 = None
         self.img_walking2 = None
@@ -144,16 +144,16 @@ class Player(Fighter):
                 self.img_walking2 = item.walking_image2
                 self.hit_frames = item.hit_frames
                 no_weapon = False
-                weapon_img = item.name
+                weapon_img = item.file
             elif isinstance(item, Armor):
                 self.defence += item.defence
                 self.total_agility += item.agility
                 self.total_strength += item.strength
                 self.total_fortune += item.fortune
                 if item.type == "boots":
-                    boots_img = item.name
+                    boots_img = item.file
                 if item.type == "gloves":
-                    gloves_img = item.name
+                    gloves_img = item.file
         self.defence += self.total_strength
         self.damage += self.level
         for effect in self.effects:
@@ -609,7 +609,7 @@ class Player(Fighter):
         surface = pg.Surface((1050, 150), pg.SRCALPHA)
         feet_img = "feet_black.png"
         if feet != None:
-            feet_img = feet + '.png'
+            feet_img = 'feet_' + feet + '.png'
         surface.blit(pg.image.load(resource_path('img/' + feet_img)).convert_alpha(), (0,0))
         if weapon != None:
             surface.blit(pg.image.load(resource_path('img/' + "weapon_" + weapon + ".png")).convert_alpha(), (0,0))

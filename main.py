@@ -28,6 +28,7 @@ from ErrorHandler import *
 from Buyer import * 
 from GUI import *
 from network import Network
+from BeeboCreation import BeeboCreation
 from sprites.OtherPlayer import OtherPlayer
 vec = pg.math.Vector2
 
@@ -76,8 +77,6 @@ class Game:
             self.menu_open = False
         
         def new_game():
-            self.load_game_data()
-            self.new()
             self.menu_open = False
 
         def load_game():
@@ -88,21 +87,37 @@ class Game:
         def quit_menu():
             pg.quit()
             quit()
+        
+        self.beebo_creation:BeeboCreation = None
+        def open_beebo_creation():
+            self.load_game_data()
+            self.new()
+            self.beebo_creation = BeeboCreation(self.player, new_game)
 
-        gui_objects = [GuiObject("New Game", new_game), GuiObject("Load Game", load_game), GuiObject("Quit", quit_menu)]
+        gui_objects = [GuiObject("New Game", open_beebo_creation), GuiObject("Load Game", load_game), GuiObject("Quit", quit_menu)]
         if game_made: 
             gui_objects = [GuiObject("Return", return_menu), GuiObject("New Game", new_game), GuiObject("Load Game", load_game), GuiObject("Save Game", self.save_game), GuiObject("Inventory", self.player.open_backpack), GuiObject("Equipped gear", self.player.open_equipped), GuiObject("Quests", self.player.open_quests), GuiObject("Quit", quit_menu)]
         menu = GuiGrid(1, 1, "MAIN MENU", None, None, 1, 10, 50, gui_objects)
         menu.update_image()
 
         while self.menu_open:
+            if self.beebo_creation:
+                menu.image = self.beebo_creation.image
             for event in pg.event.get():
                 if event.type==pg.QUIT:
                     pg.quit()
                     quit()
                 if event.type==pg.KEYDOWN:
-                    menu.handle_key_pressed(event.key)
-                    menu.update_image()
+                    if self.beebo_creation:
+                        if event.key == pg.K_RIGHT:
+                            self.beebo_creation.change_style()
+                        elif event.key == pg.K_LEFT:
+                            self.beebo_creation.change_style(False)
+                        else:
+                            self.beebo_creation.gui.handle_key_pressed(event.key)
+                    else:
+                        menu.handle_key_pressed(event.key)
+                        menu.update_image()
      
             # Main Menu UI
             self.screen.fill(BLACK)
@@ -136,6 +151,9 @@ class Game:
                         'spells': [],
                         'quick_use': [],
                         'effects': [],
+                        'body': BODY_IMAGES[0],
+                        'eyes': EYE_IMAGES[0],
+                        'hair': HAIR_IMAGES[0]
                         },
                 'current_map': 'village1',
                 'opened_treasures': [],
@@ -168,8 +186,11 @@ class Game:
                         'completed_quests': self.player.completed_quests,
                         'spells': self.player.spells,
                         'quick_use': list(map(lambda item: item.name, self.player.quick_use)),
-                        'effects': list(map(lambda effect: effect.to_hash(), self.player.effects))
-                        },
+                        'effects': list(map(lambda effect: effect.to_hash(), self.player.effects)),
+                        'body': self.player.body,
+                        'eyes': self.player.eyes,
+                        'hair': self.player.hair,
+                    },
                     'current_map': self.current_map.name,
                     'opened_treasures': self.opened_treasures,
                     'collected_items': self.collected_items, 

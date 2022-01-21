@@ -62,7 +62,7 @@ FIRE_SPELL_HIT_IMG = pg.image.load(resource_path('img/' + 'fire_spell_hit.png'))
 
 BODY_IMAGES = ['body_brown', 'body_dark_blue', 'body_dark_brown', 'body_dark_green', 'body_dark_turquise', 'body_gray', 'body_green', 'body_light_blue', 'body_red', 'body_yellow']
 EYE_IMAGES = ['eyes1', 'eyes2']
-HAIR_IMAGES = ['hair1_black', 'hair1_coral', 'hair1_dark_dray', 'hair1_light_blue', 'hair1_light_gray', 'hair1_pink', 'hair1_yellow', 'hair2_black', 'hair2_brown', 'hair2_coral', 'hair2_gray', 'hair2_yellow', None]
+HAIR_IMAGES = ['hair1_black', 'hair1_coral', 'hair1_dark_gray', 'hair1_light_blue', 'hair1_light_gray', 'hair1_pink', 'hair1_yellow', 'hair2_black', 'hair2_brown', 'hair2_coral', 'hair2_gray', 'hair2_yellow', None]
 
 ITEMS = {
         'grape': {
