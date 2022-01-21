@@ -78,12 +78,14 @@ class Fighter(pg.sprite.Sprite):
                         if hit[0].rect.left - self.hit_rect.centerx > hit[0].rect.top - self.hit_rect.centery and hit[0].rect.left - self.hit_rect.centerx > self.hit_rect.centery - hit[0].rect.bottom:
                             self.pos.x = hit[0].rect.left - self.hit_rect.width / 2.0
                             self.hit_rect.centerx = self.pos.x
+                            self.vel.x = 0
                 if self.vel.x < 0:
                     hit = list(filter(lambda x: x.rect.right >= self.hit_rect.left, hits))
                     if len(hit) > 0:
                         if self.hit_rect.centerx - hit[0].rect.right > hit[0].rect.top - self.hit_rect.centery and self.hit_rect.centerx - hit[0].rect.right > self.hit_rect.centery - hit[0].rect.bottom:
                             self.pos.x = hit[0].rect.right + self.hit_rect.width / 2.0
                             self.hit_rect.centerx = self.pos.x
+                            self.vel.x = 0
         if dir == 'y':
             hits = pg.sprite.spritecollide(self, self.game.current_map.collisions, False, collide_hit_rect)
             if hits:
@@ -92,11 +94,13 @@ class Fighter(pg.sprite.Sprite):
                     if len(hit) > 0 and self.hit_rect.centery < hit[0].rect.top:
                         self.pos.y = hit[0].rect.top - self.hit_rect.height / 2.0
                         self.hit_rect.centery = self.pos.y
+                        self.vel.y = 0
                 if self.vel.y < 0:
                     hit = list(filter(lambda x: x.rect.bottom >= self.hit_rect.top, hits))
                     if len(hit) > 0 and self.hit_rect.centery > hit[0].rect.bottom:
                         self.pos.y = hits[0].rect.bottom + self.hit_rect.height / 2.0
                         self.hit_rect.centery = self.pos.y
+                        self.vel.y = 0
     
     def make_hit(self, target):
         damage = numpy.random.normal(self.damage, self.damage*0.1)

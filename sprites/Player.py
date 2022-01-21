@@ -346,6 +346,38 @@ class Player(Fighter):
             return(hits[0])
         return False
 
+    def collide_with_walls(self, dir):
+        if dir == 'x':
+            hits = pg.sprite.spritecollide(self, self.game.current_map.collisions, False, collide_hit_rect)
+            if hits:
+                if self.vel.x > 0:
+                    hit = list(filter(lambda x: x.rect.left <= self.hit_rect.right, hits))
+                    if len(hit) > 0:
+                        self.pos.x = hit[0].rect.left - self.hit_rect.width / 2.0
+                        self.hit_rect.centerx = self.pos.x
+                        self.vel.x = 0
+                if self.vel.x < 0:
+                    hit = list(filter(lambda x: x.rect.right >= self.hit_rect.left, hits))
+                    if len(hit) > 0:
+                        self.pos.x = hit[0].rect.right + self.hit_rect.width / 2.0
+                        self.hit_rect.centerx = self.pos.x
+                        self.vel.x = 0
+        if dir == 'y':
+            hits = pg.sprite.spritecollide(self, self.game.current_map.collisions, False, collide_hit_rect)
+            if hits:
+                if self.vel.y > 0:
+                    hit = list(filter(lambda x: x.rect.top <= self.hit_rect.bottom, hits))
+                    if len(hit) > 0 and self.hit_rect.centery < hit[0].rect.top:
+                        self.pos.y = hit[0].rect.top - self.hit_rect.height / 2.0
+                        self.hit_rect.centery = self.pos.y
+                        self.vel.y = 0
+                if self.vel.y < 0:
+                    hit = list(filter(lambda x: x.rect.bottom >= self.hit_rect.top, hits))
+                    if len(hit) > 0 and self.hit_rect.centery > hit[0].rect.bottom:
+                        self.pos.y = hits[0].rect.bottom + self.hit_rect.height / 2.0
+                        self.hit_rect.centery = self.pos.y
+                        self.vel.y = 0
+
     def collide_with_doorway(self):
         hits = pg.sprite.spritecollide(self, self.game.current_map.doorways, False, collide_hit_rect)
         if len(hits) >= 1:    
