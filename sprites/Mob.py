@@ -31,7 +31,7 @@ class Mob(Fighter):
         self.name = name
         self.walk_frames = walk_frames
         Fighter.__init__(self, game.mobs, game, x, y, self.stand_frames.get_image(0,0,100,100), hit_rect, False, hp, dmg)
-        self.last_updated = math.floor(numpy.random.uniform(0,20))
+        self.last_updated = numpy.random.uniform(0,0.5)
         self.player:Player = player
         self.dropped = False
         self.gives_exp = exp
