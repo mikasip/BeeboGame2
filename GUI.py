@@ -277,8 +277,8 @@ class EquippedGearGui(CustomGuiItem):
                     if i == self.active_equipped_index:
                         item_type = type
                 item = list(filter(lambda item: item.type == item_type, self.equipped))[0]
-                self.equipped.remove(item)
-                self.add_to_backpack(item)
+                if self.add_to_backpack(item):
+                    self.equipped.remove(item)
                 self.unequip_dialog_open = False
                 self.active_equipped_index = 8
             else:
