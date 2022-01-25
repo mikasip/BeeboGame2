@@ -36,7 +36,7 @@ class Game:
     def __init__(self):
         pg.init()
         
-        self.screen = pg.display.set_mode((WIDTH, HEIGHT), pg.FULLSCREEN | pg.SCALED)
+        self.screen = pg.display.set_mode((WIDTH, HEIGHT))#, pg.FULLSCREEN | pg.SCALED)
         pg.display.set_caption(TITLE)
         self.clock = pg.time.Clock()
         self.img_folder = path.join(path.dirname(__file__), 'img')
@@ -51,6 +51,7 @@ class Game:
         self.network:Network = None
         self.connected = False
         self.game_state:GameState = None
+        self.break_update_loop = False
         self.main_menu(game_made = False)
         self.send_list = []
     
@@ -85,8 +86,7 @@ class Game:
             self.menu_open = False
             
         def quit_menu():
-            pg.quit()
-            quit()
+            self.quit()
         
         self.beebo_creation:BeeboCreation = None
         def open_beebo_creation():
@@ -366,6 +366,7 @@ class Game:
         self.error_message = ErrorMessageHandler(pg.image.load(resource_path('img/' + MENU_BOX)).convert_alpha())
             
     def new(self):
+        self.break_update_loop = True
         self.current_map.doorways = []
         self.current_map.collisions = []
         self.current_map.beebos = []
@@ -473,11 +474,11 @@ class Game:
     def run(self):
         # game loop - set self.playing = False to end the game
         self.playing = True
-        #self.network = Network()
-        #playerId = self.network.getId()
-        #if playerId != None:
-        #    self.player.id = int(playerId)
-        #    self.connected = True
+        self.network = Network()
+        playerId = self.network.getId()
+        if playerId != None:
+            self.player.id = int(playerId)
+            self.connected = True
         while self.playing:
             self.dt = self.clock.tick(FPS) / 1000
             self.game_state = self.send_to_server(["get"])
@@ -515,24 +516,11 @@ class Game:
                     existingPlayer = list(filter(lambda player: player.id == playerState.id, self.other_players))
                     if len(existingPlayer) > 0:
                         existingPlayer = existingPlayer[0]
-                        existingPlayer.pos = vec(playerState.pos[0], playerState.pos[1])
-                        existingPlayer.hit_points = playerState.hp
-                        existingPlayer.max_hit_points = playerState.max_hp
-                        existingPlayer.image_index = playerState.image_index
-                        existingPlayer.way = vec(playerState.way[0], playerState.way[1])
-                        existingPlayer.weapon = playerState.weapon
-                        existingPlayer.update_images()
-                        existingPlayer.update_hp_bar()
+                        existingPlayer.update_properties(playerState)
                     else:
                         if playerState.id != self.player.id:
                             newPlayer = OtherPlayer(self, playerState.pos[0], playerState.pos[1], playerState.id)
-                            newPlayer.max_hit_points = playerState.max_hp
-                            newPlayer.hit_points = playerState.hp
-                            newPlayer.image_index = playerState.image_index
-                            newPlayer.way = vec(playerState.way[0], playerState.way[1])
-                            newPlayer.weapon = playerState.weapon
-                            newPlayer.update_images()
-                            newPlayer.update_hp_bar()
+                            newPlayer.update_properties(playerState)
                 for player in self.other_players:
                     if len(list(filter(lambda p: p.id == player.id, mapState.playerStates))) == 0:
                         player.kill()
@@ -549,6 +537,7 @@ class Game:
                             existingMob.hit_points = mobState.hp
                             existingMob.image_index = mobState.image_index
                             existingMob.way = vec(mobState.way[0], mobState.way[1])
+                            existingMob.total_slow = mobState.slow
                             existingMob.update_hp_bar()
                 
                 for spellState in mapState.spellStates:
@@ -559,15 +548,15 @@ class Game:
                             existingSpell.pos = vec(spellState.pos[0], spellState.pos[1])
                             existingSpell.rect.center = spellState.pos
                             if spellState.hit:
-                                existingSpell.file_name += "_hit"
-                                existingSpell.image = pg.image.load(resource_path('img/' + existingSpell.file_name + '.png')).convert_alpha()
+                                existingSpell.image = pg.image.load(resource_path('img/' + spellState.spellFile + "_hit" + '.png')).convert_alpha()
                                 existingSpell.rect = existingSpell.image.get_rect()
                                 existingSpell.rect.center = spellState.pos
                         else:
                             spell_file = spellState.spellFile
+                            hit_text = ""
                             if spellState.hit:
-                                spell_file += "_hit"
-                            new_spell = OtherSpell(self, spellState.pos[0], spellState.pos[1], spellState.way[0], spellState.way[1], spell_file, spellState.id, spellState.playerId)
+                                hit_text = "_hit"
+                            new_spell = OtherSpell(self, spellState.pos[0], spellState.pos[1], spellState.way[0], spellState.way[1], spell_file + hit_text, spellState.id, spellState.playerId)
                             new_spell.rect.center = spellState.pos
                 for spell in self.other_spells:
                     if len(list(filter(lambda s: s.id == spell.id and s.playerId == spell.player_id, mapState.spellStates))) == 0:
@@ -575,6 +564,9 @@ class Game:
                         print("spell removed")
 
         self.players.update()
+        if self.break_update_loop:
+            self.break_update_loop = False
+            return
         self.other_players.update()
         self.mobs.update()
         self.spells.update()

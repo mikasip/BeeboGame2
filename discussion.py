@@ -13,6 +13,7 @@ from tilemap import *
 from quests import *
 from sprites.obstacles import *
 from Quest import *
+from copy import copy
 import math
 
 class DiscussionHandler(object):
@@ -148,12 +149,12 @@ class Store(object):
                 requirements_met = True
             for req in self.items[self.active_index].requirements:
                 items = list(filter(lambda item: item.name == req["name"], self.game.player.backpack.items))
-                
-                if len(items) > 0 and items[0].type == "other_item":
+                item_count = 0
+                for item in items:
+                    item_count += item.amount
+                if item_count > 0:
                     if items[0].amount < req["count"]:
-                        requirements_met = False 
-                elif len(items) < req["count"]:
-                    requirements_met = False
+                        requirements_met = False
             
             if self.game.player.level < self.items[self.active_index].level:
                 message = "Level needed: " + str(self.items[self.active_index].level)
@@ -217,12 +218,12 @@ class Store(object):
             self.image = self.make_store_box_image()
             self.game.player.backpack.image = self.game.player.backpack.make_backpack_image()
             return
-        added = self.game.player.add_to_backpack(self.items[self.active_index])
+        added = self.game.player.add_to_backpack(copy(self.items[self.active_index]))
         if added:
             self.game.player.chance_gold_amount(-self.items[self.active_index].price)
             for req in self.items[self.active_index].requirements:
                     items = list(filter(lambda item: item.name == req["name"], self.game.player.backpack.items))
-                    if len(items) > 0 and items[0].type == "other_item":
+                    if len(items) > 0:
                         self.game.player.change_item_count(items[0], -req["count"])
                     else:
                         for i in range(0, req["count"]):

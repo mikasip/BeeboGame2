@@ -60,9 +60,9 @@ FORTUNE_IMG = pg.image.load(resource_path('img/' + 'fortune.png')).convert_alpha
 FIRE_SPELL_IMG = pg.image.load(resource_path('img/' + 'fire_spell.png')).convert_alpha()
 FIRE_SPELL_HIT_IMG = pg.image.load(resource_path('img/' + 'fire_spell_hit.png')).convert_alpha()
 
-BODY_IMAGES = ['body_brown', 'body_dark_blue', 'body_dark_brown', 'body_dark_green', 'body_dark_turquise', 'body_gray', 'body_green', 'body_light_blue', 'body_red', 'body_yellow']
+BODY_IMAGES = ['body_brown', 'body_blue', 'body_dark_brown', 'body_dark_green', 'body_dark_turquise', 'body_gray', 'body_light_green', 'body_violet', 'body_red', 'body_yellow']
 EYE_IMAGES = ['eyes1', 'eyes2']
-HAIR_IMAGES = ['hair1_black', 'hair1_coral', 'hair1_dark_gray', 'hair1_light_blue', 'hair1_light_gray', 'hair1_pink', 'hair1_yellow', 'hair2_black', 'hair2_brown', 'hair2_coral', 'hair2_gray', 'hair2_yellow', None]
+HAIR_IMAGES = ['hair1_black', 'hair1_dark_red', 'hair1_gray', 'hair1_light_blue', 'hair1_violet', 'hair1_blue', 'hair1_yellow', 'hair2_black', 'hair2_brown', 'hair2_coral', 'hair2_gray', 'hair2_yellow', None]
 
 ITEMS = {
         'grape': {
@@ -138,7 +138,7 @@ ITEMS = {
                 "amount": 1,
                 "requirements": [],
                 "is_sellable": True
-        }, 
+        },
         'normal_hp_potion': {
                 "name": "Normal health potion",
                 "file": "small_hp_potion",
@@ -704,8 +704,8 @@ ITEMS = {
                         "is_sellable": True
                     },
         'red_leather_pants': {
-                        "file":"leather_pants",
-                        "name": "Leather pants",
+                        "file":"red_leather_pants",
+                        "name": "Red leather pants",
                         "defence": 6,
                         "price": 700,
                         "level": 5,
@@ -1742,7 +1742,10 @@ SHOPS = {
                     ITEMS['small_hp_potion']
                 ],
         "store_seller2": [
-                    ITEMS['normal_hp_potion']
+                    ITEMS['normal_hp_potion'],
+                    ITEMS['red_gem'],
+                    ITEMS['blue_gem'],
+                    ITEMS['green_gem'],
                 ],
         "bakery-beebo": [
                 ITEMS['apple_pie'],

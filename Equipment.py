@@ -177,22 +177,23 @@ class SpellSprite(pg.sprite.Sprite):
         self.rect.center += self.way * self.speed * self.game.dt
         self.hit_rect.center = self.rect.center
         self.time -= self.game.dt
-        if self.time <= 0:
-            self.kill()
         wall_hits = pg.sprite.spritecollide(self, self.game.current_map.collisions, False, collide_hit_rect)
         if len(wall_hits) > 0:
-            self.kill()
             self.game.add_to_send_list('remove_spell,' + self.game.current_map.name + "," + str(self.game.player.id) + "," + str(self.id))
+            self.kill()
             return
         hits = pg.sprite.spritecollide(self, self.game.current_map.mobs, False, collide_hit_rect_center)
         for hit in hits:
-            hit.take_hit(self.damage)
-            self.game.add_to_send_list(hit.create_message_to_server())
+            hit.take_hit(self.damage, self.slow)
             hit.apply_effect(self.dot, self.slow, self.effect_time)
             SpellHitSprite(self.game, hit.pos.x, hit.pos.y, self.file_name, self.id)
         if len(hits) > 0:
             self.kill()
             self.game.add_to_send_list(self.game.current_map.name + ",spell," + str(self.game.player.id) + "," + str(self.id) + "," + str(self.rect.centerx) + "," + str(self.rect.centery) + "," + str(self.way.x) + "," + str(self.way.y) + ',True' + "," + self.file_name)
+            return
+        if self.time <= 0:
+            self.game.add_to_send_list('remove_spell,' + self.game.current_map.name + "," + str(self.game.player.id) + "," + str(self.id))
+            self.kill()
             return
         self.game.add_to_send_list(self.game.current_map.name + ",spell," + str(self.game.player.id) + "," + str(self.id) + "," + str(self.rect.centerx) + "," + str(self.rect.centery) + "," + str(self.way.x) + "," + str(self.way.y) + ',False' + "," + self.file_name)
         

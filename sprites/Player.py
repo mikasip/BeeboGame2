@@ -72,9 +72,11 @@ class Player(Fighter):
         self.quick_use = []
         self.quick_use_max_space = 2
         self.quick_use_cd = 0
-        self.body = BODY_IMAGES[6]
+        self.body = BODY_IMAGES[1]
         self.eyes = EYE_IMAGES[1]
-        self.hair = HAIR_IMAGES[10]
+        self.hair = HAIR_IMAGES[1]
+        self.feet = "black"
+        self.hands = ""
         self.img_standing = None
         self.img_walking1 = None
         self.img_walking2 = None
@@ -118,8 +120,6 @@ class Player(Fighter):
 
     def update_stats(self, new_attribute = None, load_data = False):
         weapon_img = None
-        boots_img = None
-        gloves_img = None
         self.prev_strength = self.total_strength
         if new_attribute == "strength":
             self.strength += 1
@@ -151,9 +151,9 @@ class Player(Fighter):
                 self.total_strength += item.strength
                 self.total_fortune += item.fortune
                 if item.type == "boots":
-                    boots_img = item.file
+                    self.feet = item.file
                 if item.type == "gloves":
-                    gloves_img = item.file
+                    self.hands = item.file
         self.defence += self.total_strength
         self.damage += self.level
         for effect in self.effects:
@@ -189,7 +189,7 @@ class Player(Fighter):
         for level in MAX_SPELLS_PER_LEVEL.keys():
             if self.game.player.level >= level:
                 self.max_spells = MAX_SPELLS_PER_LEVEL[level]
-        self.update_sprites(boots_img, weapon_img, gloves_img)
+        self.update_sprites(weapon_img)
         
     def update_hit_points(self, damage):
         if damage > 0:
@@ -325,7 +325,7 @@ class Player(Fighter):
         weapons = list(filter(lambda item: item.type == "weapon", self.equipped_gear.equipped))
         if len(weapons) > 0:
             weapon = weapons[0].file
-        return self.game.current_map.name + "," +  "player" + "," + str(self.id) + "," + str(round(self.pos.x)) + "," + str(round(self.pos.y)) + "," + str(self.hit_points) + "," + str(self.max_hit_points) + "," + str(self.way.x) + "," + str(self.way.y) + "," + str(self.image_index) + "," + weapon
+        return self.game.current_map.name + "," +  "player" + "," + str(self.id) + "," + str(round(self.pos.x)) + "," + str(round(self.pos.y)) + "," + str(self.hit_points) + "," + str(self.max_hit_points) + "," + str(self.way.x) + "," + str(self.way.y) + "," + str(self.image_index) + "," + weapon + "," + self.body + "," + self.feet + "," + self.hands + "," + self.eyes + "," + self.hair
 
     def pick_item(self, item):
         if self.append_item(item):
@@ -480,13 +480,13 @@ class Player(Fighter):
                 self.get_keys()
                 if self.last_updated <= 0 and self.hit_period <= 0:
                     self.update_image()
-                    self.last_updated = IMAGE_UPDATE_FREQUENCY/self.speed_multiplier
+                    self.last_updated = 0.24/self.speed_multiplier
                 elif self.hit_period > 0:
                     frame = math.floor(((HIT_COOLDOWN/3)*self.attack_speed - self.hit_period) / ((HIT_COOLDOWN*self.attack_speed/(3*4))))
                     self.image_index = 3 + frame
                     self.current_image = self.sprite_sheet.get_image(self.image_index * 150, 0, 150, 150)
                 else:
-                    self.last_updated = self.last_updated - 1
+                    self.last_updated -= self.game.dt
                 angle = angle_between(vec(1,0), self.way)
                 self.image, self.rect = rotate(self.current_image, angle, vec(0,0))
                 self.collide_with_mobs()
@@ -553,9 +553,11 @@ class Player(Fighter):
         self.wait = False
 
     def add_to_backpack(self, item):
-        existing_items = list(filter(lambda x: item.name == x.name, self.backpack.items))
+        existing_items = list(filter(lambda x: x.name == item.name, self.backpack.items))
         for existing_item in existing_items:
-            if existing_item.max_stacks <= existing_item.amount + item.amount:
+            print(existing_item.amount)
+            print(item.amount)
+            if existing_item.max_stacks >= existing_item.amount + item.amount:
                 existing_item.amount += item.amount
                 self.backpack.image = self.backpack.make_backpack_image()
                 return True
@@ -595,6 +597,9 @@ class Player(Fighter):
         item.amount += amount
         if item.amount <= 0:
             self.backpack.items.remove(item)
+            if item.amount < 0:
+                next_item = list(filter(lambda i: i.name == item.name, self.backpack.items))[0]
+                self.change_item_count(next_item, item.amount)
         self.backpack.image = self.backpack.make_backpack_image()
 
     def append_item(self, item):
@@ -602,16 +607,13 @@ class Player(Fighter):
             self.gold += round(item.amount)
             self.statbar.update()
         elif item.type == "other_item":
-            items = list(filter(lambda x: x.name == item.name, self.backpack.items))
-            if len(items) > 0:
-                items[0].amount += 1
-            else:
-                added = self.add_to_backpack(item.item)
-                if not added:
-                    return False
-            if item.only_once:
+            added = self.add_to_backpack(item.item)
+            if added:
+                if item.only_once:
                     if item.id != None:
                         self.game.collected_items.append(item.id)
+            else:
+                return False
         else:
             added = self.add_to_backpack(item.item)
             if not added:
@@ -637,17 +639,15 @@ class Player(Fighter):
         self.update_hp_bar()
         self.statbar.update()
     
-    def update_sprites(self, feet = None, weapon = None,  gloves = None):
+    def update_sprites(self, weapon = None):
         surface = pg.Surface((1050, 150), pg.SRCALPHA)
-        feet_img = "feet_black.png"
-        if feet != None:
-            feet_img = 'feet_' + feet + '.png'
-        surface.blit(pg.image.load(resource_path('img/' + feet_img)).convert_alpha(), (0,0))
+        feet_img = self.feet + ".png"
+        surface.blit(pg.image.load(resource_path('img/' + "feet_" + self.feet + '.png')).convert_alpha(), (0,0))
         if weapon != None:
             surface.blit(pg.image.load(resource_path('img/' + "weapon_" + weapon + ".png")).convert_alpha(), (0,0))
         surface.blit(pg.image.load(resource_path('img/' + self.body + ".png")).convert_alpha(), (0,0))
-        if gloves != None:
-            surface.blit(pg.image.load(resource_path('img/' + "hands_" + gloves + ".png")).convert_alpha(), (0,0))
+        if self.hands != "":
+            surface.blit(pg.image.load(resource_path('img/' + "hands_" + self.hands + ".png")).convert_alpha(), (0,0))
         surface.blit(pg.image.load(resource_path('img/' + self.eyes + ".png")).convert_alpha(), (0,0))
         if self.hair != None:
             surface.blit(pg.image.load(resource_path('img/' + self.hair + ".png")).convert_alpha(), (0,0))

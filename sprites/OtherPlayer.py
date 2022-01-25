@@ -1,4 +1,4 @@
-from settings import PLAYER_HIT_RECT, LIGHTGREY
+from settings import PLAYER_HIT_RECT, LIGHTGREY, BODY_IMAGES, EYE_IMAGES, HAIR_IMAGES
 from helpers import rotate, angle_between, make_hp_bar, resource_path
 from SpriteSheet import SpriteSheet
 import pygame as pg
@@ -20,39 +20,62 @@ class OtherPlayer(pg.sprite.Sprite):
         self.current_image = self.image
         self.image_index = 0
         self.weapon = None
-        hit_frames = SpriteSheet(resource_path('img/' + 'hero_hit' + '.png'))
-        self.original_images = [game.hero_img_standing, game.hero_img_walking1, game.hero_img_walking2, hit_frames.get_image(0 * 100, 0, 100, 100), hit_frames.get_image(1 * 100, 0, 100, 100), hit_frames.get_image(2 * 100, 0, 100, 100), hit_frames.get_image(3 * 100, 0, 100, 100)]
-        self.images = self.original_images
         self.is_killed = False
         self.hp_bar_img_bg = pg.Surface((50, 8))
         self.hp_bar_img_bg.fill(LIGHTGREY)
         self.hp_bar_rect = self.hp_bar_img_bg.get_rect(left = (self.rect.width - 50)/2, top = (self.rect.height - self.hit_rect.height)/2 - 10)
+        self.body = BODY_IMAGES[1]
+        self.eyes = EYE_IMAGES[1]
+        self.hair = HAIR_IMAGES[1]
+        self.feet = "black"
+        self.hands = ""
+        self.img_standing = None
+        self.img_walking1 = None
+        self.img_walking2 = None
+        self.hit_frames = None
+        self.sprite_sheet:SpriteSheet = SpriteSheet()
+        self.update_images()
+
 
     def update(self):
         if self.is_killed:
             self.kill()
             return
         angle = angle_between(vec(1,0), self.way)
-        self.current_image = self.images[self.image_index]
+        self.current_image = self.sprite_sheet.get_image(self.image_index*150, 0, 150, 150)
         self.image, self.rect = rotate(self.current_image, angle, vec(0,0))
         self.rect.center = (self.pos.x, self.pos.y)
         rect = self.hp_bar.get_rect(left = (self.rect.width - 50)/2, top = (self.rect.height - self.hit_rect.height)/2 - 10)
         self.image.blit(self.hp_bar, rect)
+    
+    def update_properties(self, state):
+        self.pos = vec(state.pos[0], state.pos[1])
+        self.hit_points = state.hp
+        self.max_hit_points = state.max_hp
+        self.image_index = state.image_index
+        self.way = vec(state.way[0], state.way[1])
+        self.weapon = state.weapon
+        self.hair = state.hair
+        self.body = state.body
+        self.feet = state.feet
+        self.hands = state.hands
+        self.eyes = state.eyes
+        self.update_images()
+        self.update_hp_bar()
 
     def update_images(self):
+        surface = pg.Surface((1050, 150), pg.SRCALPHA)
+        surface.blit(pg.image.load(resource_path('img/' + "feet_" + self.feet + '.png')).convert_alpha(), (0,0))
         if self.weapon != None:
-            hit_frames = SpriteSheet(resource_path('img/' + 'hero_hit_with_' + self.weapon + '.png'))
-            self.images = [pg.image.load(resource_path('img/' + 'standing_hero_with_' + self.weapon + '.png')).convert_alpha(),
-                pg.image.load(resource_path('img/' + 'standing_hero_with_' + self.weapon + '.png')).convert_alpha(),
-                pg.image.load(resource_path('img/' + 'walking_hero1_with_' + self.weapon + '.png')).convert_alpha(),
-                pg.image.load(resource_path('img/' + 'walking_hero2_with_' + self.weapon + '.png')).convert_alpha(),
-                hit_frames.get_image(0 * 100, 0, 100, 100),
-                hit_frames.get_image(1 * 100, 0, 100, 100), 
-                hit_frames.get_image(2 * 100, 0, 100, 100), 
-                hit_frames.get_image(3 * 100, 0, 100, 100)
-            ]
-        else:
-            self.images = self.original_images
+            surface.blit(pg.image.load(resource_path('img/' + "weapon_" + self.weapon + ".png")).convert_alpha(), (0,0))
+        surface.blit(pg.image.load(resource_path('img/' + self.body + ".png")).convert_alpha(), (0,0))
+        if self.hands != "":
+            surface.blit(pg.image.load(resource_path('img/' + "hands_" + self.hands + ".png")).convert_alpha(), (0,0))
+        surface.blit(pg.image.load(resource_path('img/' + self.eyes + ".png")).convert_alpha(), (0,0))
+        if self.hair != None:
+            surface.blit(pg.image.load(resource_path('img/' + self.hair + ".png")).convert_alpha(), (0,0))
+        surface.blit(pg.image.load(resource_path('img/' + "backpack_gray" + ".png")).convert_alpha(), (0,0))
+        self.sprite_sheet.sprite_sheet = surface
     
     def update_hp_bar(self):
         self.hp_bar = self.hp_bar_img_bg.copy()

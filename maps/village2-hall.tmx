@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.2.5" orientation="orthogonal" renderorder="right-down" width="24" height="16" tilewidth="32" tileheight="32" infinite="0" nextlayerid="9" nextobjectid="23">
+<map version="1.2" tiledversion="1.2.5" orientation="orthogonal" renderorder="right-down" width="24" height="16" tilewidth="32" tileheight="32" infinite="0" nextlayerid="9" nextobjectid="24">
  <tileset firstgid="1" source="Indoor.tsx"/>
  <tileset firstgid="769" source="Stairs.tsx"/>
  <tileset firstgid="1601" source="Indoor_2.tsx"/>
- <tileset firstgid="1825" source="../../UltimateGame/maps/Beebos.tsx"/>
+ <tileset firstgid="1825" source="Beebos.tsx"/>
  <layer id="1" name="U_Background" width="24" height="16">
   <data encoding="csv">
 338,340,340,340,340,340,340,340,340,340,340,340,340,340,340,340,340,340,340,340,340,340,340,337,
@@ -122,6 +122,12 @@
   <object id="20" x="672" y="192" height="160"/>
   <object id="21" x="352" y="128" width="64" height="32"/>
   <object id="22" x="672" y="128" width="64" height="64"/>
+  <object id="23" name="village2-hall-up1" x="672" y="192" width="64" height="32">
+   <properties>
+    <property name="pos_x" type="int" value="13"/>
+    <property name="pos_y" type="int" value="12"/>
+   </properties>
+  </object>
  </objectgroup>
  <objectgroup id="6" name="Doorways">
   <object id="15" name="village2" x="192" y="480" width="64" height="32">

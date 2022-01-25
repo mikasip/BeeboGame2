@@ -14,6 +14,7 @@ from tilemap import *
 from Equipment import *
 from sprites.obstacles import *
 from sprites.OtherItem import DropSprite
+from copy import copy
 from GUI import *
 
 class Backpack(object):
@@ -145,7 +146,9 @@ class Backpack(object):
         self.image = self.make_backpack_image()
     
     def drop_item(self):
-        self.game.current_map.items.append(DropSprite(self.game, self.player.pos[0], self.player.pos[1], self.items[self.active_index]))
+        item = copy(self.items[self.active_index])
+        item.amount = 1
+        self.game.current_map.items.append(DropSprite(self.game, self.player.pos[0], self.player.pos[1], item))
         self.player.change_item_count(self.items[self.active_index], -1)
         self.selection_menu = None
         self.image = self.make_backpack_image()
@@ -164,6 +167,7 @@ class Backpack(object):
     def use_consumable(self):
         self.player.use_consumable(self.items[self.active_index])
         self.player.change_item_count(self.items[self.active_index], -1)
+        self.selection_menu = None
         self.image = self.make_backpack_image()
     
     def add_to_quick_use(self):

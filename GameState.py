@@ -6,7 +6,7 @@ class GameState:
     
     """
         Format:
-        'map_name,type(player/mob),id,pos_x,pos_y,hp(if_player),max_hp,way_x,way_y,image_index,weapon(if player)'
+        'map_name,type(player/mob),id,pos_x,pos_y,hp(if_player),max_hp,way_x,way_y,image_index,weapon(if player),body,feet,hands,eyes,hair'
         or
         'map_name,type=spell,player_id,id,pos_x,pos_y,way_x,way_y,hit,file'
         or
@@ -16,7 +16,7 @@ class GameState:
         or
         'remove_spell,map_name,player_id,id'
         or
-        'damage,map_name,mob_id,damage_amount'
+        'damage,map_name,mob_id,damage_amount,slow'
     """
     def updateState(self, updateString):
         parts = updateString.split(",")
@@ -49,6 +49,7 @@ class GameState:
                 existingMob = list(filter(lambda mobState: mobState.id == int(parts[2]), existingMap[0].mobStates))
                 if len(existingMob) > 0:
                     existingMob[0].hp -= int(float(parts[3]))
+                    existingMob[0].slow *= float(parts[4])
                     if existingMob[0].hp <= 0:
                         existingMob[0].dead = True
             return
@@ -89,7 +90,7 @@ class MapState:
                 newPlayerState.updateState(properties[1:])
                 self.playerStates.append(newPlayerState)
         elif type == "spell":
-            existingSpell = list(filter(lambda spellState: spellState.id == int(properties[0]), self.spellStates))
+            existingSpell = list(filter(lambda spellState: spellState.id == int(properties[1]) and spellState.playerId == int(properties[0]), self.spellStates))
             if len(existingSpell) > 0:
                 existingSpell[0].updateState(properties[2:])
             else:
@@ -106,6 +107,7 @@ class MobState:
         self.hp = 20
         self.pos = (0,0)
         self.dead = False
+        self.slow = 1
 
     def updateState(self, properties):
         self.pos = (round(float(properties[0])), round(float(properties[1])))
@@ -120,6 +122,11 @@ class PlayerState:
         self.max_hp = 60
         self.way = (1,0)
         self.image_index = 0
+        self.feet = ""
+        self.body = ""
+        self.eyes = ""
+        self.hands = ""
+        self.hair = ""
     
     def updateState(self, properties):
         self.pos = (round(float(properties[0])), round(float(properties[1])))
@@ -131,6 +138,11 @@ class PlayerState:
             self.weapon = properties[7]
         else:
             self.weapon = None
+        self.body = properties[8]
+        self.feet = properties[9]
+        self.hands = properties[10]
+        self.eyes = properties[11]
+        self.hair = properties[12]
 
 class SpellState:
     def __init__(self):

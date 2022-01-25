@@ -48,10 +48,12 @@ class Mob(Fighter):
         self.others_to_update = False
         self.images = [self.stand_frames.get_image(0,0,100,100), self.stand_frames.get_image(100,0,100,100), self.walk_frames.get_image(0,0,100,100), self.walk_frames.get_image(100,0,100,100), self.hit_frames.get_image(0 * 100, 0, 100, 100), self.hit_frames.get_image(1 * 100, 0, 100, 100), self.hit_frames.get_image(2 * 100, 0, 100, 100)]
         self.total_hit_period = (HIT_COOLDOWN/3)*self.hit_speed
+        self.total_slow = 1
+        self.max_slow = 2
 
     def create_message_to_server(self):
         return self.game.current_map.name + "," +  "mob" + "," + str(self.id) + "," + str(self.max_hit_points) + "," + str(round(self.pos.x)) + "," + str(round(self.pos.y)) + "," + str(self.way.x) + "," + str(self.way.y) + "," + str(self.image_index)
-    
+        
     def update_way(self):
         closest_player = self.player
         min_dist = distance(self.player.pos, self.pos)
@@ -60,9 +62,7 @@ class Mob(Fighter):
             if dist < min_dist:
                 min_dist = dist
                 closest_player = player
-        total_slow = 1
-        for effect in self.effects:
-            total_slow *= effect.slow
+        total_slow = self.total_slow
         self.others_to_update = False
         if closest_player != self.player:
             self.others_to_update = True
@@ -118,16 +118,17 @@ class Mob(Fighter):
                 self.die_animation()
             else:
                 self.update_way()
-                total_slow = 1
                 for effect in self.effects:
                     if effect.effect_time > 0:
                         effect.effect_time -= self.game.dt
                         if effect.dot_timer <= 0:
                             self.take_hit(effect.dot)
                             effect.dot_timer = effect.total_dot_timer
-                        total_slow *= effect.slow
                     else:
                         self.effects.remove(effect)
+                        self.total_slow *= (1/effect.slow)
+                        self.game.add_to_send_list('damage,' + self.game.current_map.name + "," + str(self.id) + "," + str(0) + "," + str(1/effect.slow))
+
                 if self.others_to_update:
                     self.current_image = self.images[self.image_index]
                     angle = angle_between(vec(1,0), self.way)
@@ -141,13 +142,13 @@ class Mob(Fighter):
                 if self.last_updated <= 0 and self.hit_period <= 0:
                     self.update_image_index()
                     self.current_image = self.images[self.image_index]
-                    self.last_updated = IMAGE_UPDATE_FREQUENCY
+                    self.last_updated = 0.24
                 elif self.hit_period > 0 and self.hit_period < self.total_hit_period:
                     frame = math.floor((self.total_hit_period - self.hit_period) / ((self.total_hit_period/3)))
                     self.image_index = frame + 4
                     self.current_image = self.images[self.image_index]
                 else:
-                    self.last_updated = self.last_updated - 1
+                    self.last_updated -= self.game.dt/self.total_slow
                 angle = angle_between(vec(1,0), self.way)
                 self.image, self.rect = rotate(self.current_image, angle, vec(0,0))
                 rect = self.hp_bar.get_rect(left = (self.rect.width - 50)/2, top = (self.rect.height - self.hit_rect.height)/2 - 10)
@@ -174,12 +175,15 @@ class Mob(Fighter):
                 self.rect.center = self.hit_rect.center
                 self.game.add_to_send_list(self.create_message_to_server())
 
-    def take_hit(self, damage):
+    def take_hit(self, damage, slow = 1):
         super().take_hit(damage)
-        self.game.add_to_send_list('damage,' + self.game.current_map.name + "," + str(self.id) + "," + str(damage))
+        self.game.add_to_send_list('damage,' + self.game.current_map.name + "," + str(self.id) + "," + str(damage) + "," + str(slow))
 
     def apply_effect(self, dot, slow, effect_time):
         self.effects.append(Effect(HIT_COOLDOWN, slow, dot, effect_time))
+        self.total_slow *= slow
+        if self.total_slow > 2:
+            self.total_slow = 2
 
 class FriendlyMob(Mob):
     def __init__(self, game, x, y, player, stand_frames, walk_frames, exp, drop, hp, defence, gold, action, hit_rect, follows, name, walk_speed, id):
@@ -213,9 +217,7 @@ class FriendlyMob(Mob):
         if closest_player != self.player:
             self.others_to_update = True
             return
-        total_slow = 1
-        for effect in self.effects:
-            total_slow *= effect.slow
+        total_slow = self.total_slow
         if self.last_way_update <= 0:
             self.last_way_update = 4
             num = numpy.random.uniform()
