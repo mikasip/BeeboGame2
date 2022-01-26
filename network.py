@@ -11,12 +11,13 @@ class Peer:
         self.id = id
         self.ip = ip
         self.port = port
+        self.last_update = None
 
 class Network:
-    def __init__(self, game):
+    def __init__(self):
         self.peers = []
-        self.game = game
         self.id = None
+
         print('connecting to server')
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -40,6 +41,14 @@ class Network:
 
     def getId(self):
         return self.id
+    
+    def getMessages(self):
+        messages = []
+        for peer in self.peers:
+            if peer.last_update != None:
+                messages.append(peer.last_update)
+                peer.last_update = None
+        return messages
 
     def listen(self):
         while True:
@@ -52,7 +61,7 @@ class Network:
             peer = list(filter(lambda p: p.ip == address[0] and p.port == port, self.peers))
             if len(peer) > 0:
                 peer = peer[0]
-                self.game.update_game_state(data)
+                peer.last_update = data
             elif address == self.server_address:
                 new_peers = []
                 for peer in data.split(","):
@@ -81,5 +90,11 @@ class Network:
                 self.sock.sendto(msg.encode(), (peer.ip, peer.port))
             except:
                 pass
+    
+    def end_session(self):
+        try:
+            self.sock.sendto("remove", self.server_address)
+        except:
+            pass
 
 #n = Network(None)

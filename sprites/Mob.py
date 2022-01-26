@@ -52,7 +52,7 @@ class Mob(Fighter):
         self.max_slow = 2
 
     def create_message_to_server(self):
-        return self.game.current_map.name + "," +  "mob" + "," + str(self.id) + "," + str(self.max_hit_points) + "," + str(round(self.pos.x)) + "," + str(round(self.pos.y)) + "," + str(self.way.x) + "," + str(self.way.y) + "," + str(self.image_index)
+        return self.game.current_map.name + "," +  "mob" + "," + str(self.id) + "," + str(self.hit_points) + "," + str(round(self.pos.x)) + "," + str(round(self.pos.y)) + "," + str(self.way.x) + "," + str(self.way.y) + "," + str(self.image_index)
         
     def update_way(self):
         closest_player = self.player

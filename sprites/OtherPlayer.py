@@ -8,6 +8,7 @@ vec = pg.math.Vector2
 
 class OtherPlayer(pg.sprite.Sprite):
     def __init__(self, game, x, y, id):
+        self.ready = False
         pg.sprite.Sprite.__init__(self, game.other_players)
         self.id = id
         self.game = game
@@ -23,45 +24,34 @@ class OtherPlayer(pg.sprite.Sprite):
         self.is_killed = False
         self.hp_bar_img_bg = pg.Surface((50, 8))
         self.hp_bar_img_bg.fill(LIGHTGREY)
+        self.hp_bar = None
         self.hp_bar_rect = self.hp_bar_img_bg.get_rect(left = (self.rect.width - 50)/2, top = (self.rect.height - self.hit_rect.height)/2 - 10)
         self.body = BODY_IMAGES[1]
         self.eyes = EYE_IMAGES[1]
         self.hair = HAIR_IMAGES[1]
         self.feet = "black"
         self.hands = ""
+        self.hit_points = 60
+        self.max_hit_points = 60
         self.img_standing = None
         self.img_walking1 = None
         self.img_walking2 = None
         self.hit_frames = None
         self.sprite_sheet:SpriteSheet = SpriteSheet()
         self.update_images()
-
+        self.update_hp_bar()
 
     def update(self):
-        if self.is_killed:
-            self.kill()
-            return
-        angle = angle_between(vec(1,0), self.way)
-        self.current_image = self.sprite_sheet.get_image(self.image_index*150, 0, 150, 150)
-        self.image, self.rect = rotate(self.current_image, angle, vec(0,0))
-        self.rect.center = (self.pos.x, self.pos.y)
-        rect = self.hp_bar.get_rect(left = (self.rect.width - 50)/2, top = (self.rect.height - self.hit_rect.height)/2 - 10)
-        self.image.blit(self.hp_bar, rect)
-    
-    def update_properties(self, state):
-        self.pos = vec(state.pos[0], state.pos[1])
-        self.hit_points = state.hp
-        self.max_hit_points = state.max_hp
-        self.image_index = state.image_index
-        self.way = vec(state.way[0], state.way[1])
-        self.weapon = state.weapon
-        self.hair = state.hair
-        self.body = state.body
-        self.feet = state.feet
-        self.hands = state.hands
-        self.eyes = state.eyes
-        self.update_images()
-        self.update_hp_bar()
+        if self.ready:
+            if self.is_killed:
+                self.kill()
+                return
+            angle = angle_between(vec(1,0), self.way)
+            self.current_image = self.sprite_sheet.get_image(self.image_index*150, 0, 150, 150)
+            self.image, self.rect = rotate(self.current_image, angle, vec(0,0))
+            self.rect.center = (self.pos.x, self.pos.y)
+            rect = self.hp_bar.get_rect(left = (self.rect.width - 50)/2, top = (self.rect.height - self.hit_rect.height)/2 - 10)
+            self.image.blit(self.hp_bar, rect)
 
     def update_images(self):
         surface = pg.Surface((1050, 150), pg.SRCALPHA)
@@ -82,5 +72,4 @@ class OtherPlayer(pg.sprite.Sprite):
         hp = make_hp_bar(48, 6, self.hit_points, self.max_hit_points)
         hp_rect = hp.get_rect(top = 1, left = 1)
         self.hp_bar.blit(hp, hp_rect)
-
     

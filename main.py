@@ -54,6 +54,8 @@ class Game:
         self.break_update_loop = False
         self.main_menu(game_made = False)
         self.send_list = ""
+        self.maps_with_player = []
+        self.update_messages = []
     
     def make_item(self, item, random_stats = False):
         new_item = None
@@ -474,7 +476,7 @@ class Game:
     def run(self):
         # game loop - set self.playing = False to end the game
         self.playing = True
-        self.network = Network(self)
+        self.network = Network()
         playerId = self.network.getId()
         if playerId != None:
             self.player.id = int(playerId)
@@ -489,9 +491,8 @@ class Game:
                 self.send_list = ""
 
     def update_game_state(self, msg):
-        for update in msg.split(";"):
-            self.game_state.updateState(update)
-
+        self.update_messages.append(msg)
+        
     """
         Format:
         'map_name,type(player/mob),id,pos_x,pos_y,hp'
@@ -505,67 +506,94 @@ class Game:
         return None
 
     def quit(self):
-        self.send_to_server(["remove," + self.current_map.name + "," + str(self.player.id)])
+        self.send_to_server("remove," + self.current_map.name + "," + str(self.player.id) + ";")
+        self.network.end_session()
         pg.quit()
         sys.exit()
 
     def update(self):
-        # update portion of the game loop
-        if self.game_state != None:
-            mapState = list(filter(lambda map: map.name == self.current_map.name, self.game_state.mapStates))
-            if len(mapState) > 0:
-                mapState = mapState[0]
-                for playerState in mapState.playerStates:
-                    existingPlayer = list(filter(lambda player: player.id == playerState.id, self.other_players))
-                    if len(existingPlayer) > 0:
-                        existingPlayer = existingPlayer[0]
-                        existingPlayer.update_properties(playerState)
-                    else:
-                        if playerState.id != self.player.id:
-                            newPlayer = OtherPlayer(self, playerState.pos[0], playerState.pos[1], playerState.id)
-                            newPlayer.update_properties(playerState)
-                for player in self.other_players:
-                    if len(list(filter(lambda p: p.id == player.id, mapState.playerStates))) == 0:
-                        player.kill()
-
-                for mobState in mapState.mobStates:
-                    existingMob = list(filter(lambda mob: mob.id == mobState.id, self.mobs))
-                    if len(existingMob) > 0:
-                        existingMob:Mob = existingMob[0]
-                        if mobState.dead:
+        for msg in self.network.getMessages():
+            for updateString in msg.split(";"):
+                parts = updateString.split(",")
+                if parts[0] == "remove":
+                    if self.current_map.name == parts[1]:
+                        existingPlayer = list(filter(lambda player: player.id == int(parts[2]), self.other_players))
+                        if len(existingPlayer) > 0:
+                            existingPlayer[0].kill()
+                elif parts[0] == "remove_spell":
+                    if self.current_map.name == parts[1]:
+                        existingSpell = list(filter(lambda spell: spell.id == int(parts[3]) and spell.player_id == int(parts[2]), self.other_spells))
+                        if len(existingSpell) > 0:
+                            print("killing")
+                            existingSpell[0].kill()
+                elif parts[0] == "dead":
+                    if self.current_map.name == parts[1]:
+                        existingMob = list(filter(lambda mob: mob.id == int(parts[2]), self.mobs))
+                        if len(existingMob) > 0:
                             existingMob.dieing = True
                             existingMob.die_animation()
-                        else:
-                            existingMob.pos = vec(mobState.pos[0], mobState.pos[1])
-                            existingMob.hit_points = mobState.hp
-                            existingMob.image_index = mobState.image_index
-                            existingMob.way = vec(mobState.way[0], mobState.way[1])
-                            existingMob.total_slow = mobState.slow
-                            existingMob.update_hp_bar()
-                
-                for spellState in mapState.spellStates:
-                    existingSpell = list(filter(lambda spell: spell.id == spellState.id and spellState.playerId == spell.player_id, self.other_spells))
-                    if spellState.playerId != self.player.id:
-                        if len(existingSpell) > 0:
-                            existingSpell = existingSpell[0]
-                            existingSpell.pos = vec(spellState.pos[0], spellState.pos[1])
-                            existingSpell.rect.center = spellState.pos
-                            if spellState.hit:
-                                existingSpell.image = pg.image.load(resource_path('img/' + spellState.spellFile + "_hit" + '.png')).convert_alpha()
-                                existingSpell.rect = existingSpell.image.get_rect()
-                                existingSpell.rect.center = spellState.pos
-                        else:
-                            spell_file = spellState.spellFile
-                            hit_text = ""
-                            if spellState.hit:
-                                hit_text = "_hit"
-                            new_spell = OtherSpell(self, spellState.pos[0], spellState.pos[1], spellState.way[0], spellState.way[1], spell_file + hit_text, spellState.id, spellState.playerId)
-                            new_spell.rect.center = spellState.pos
-                for spell in self.other_spells:
-                    if len(list(filter(lambda s: s.id == spell.id and s.playerId == spell.player_id, mapState.spellStates))) == 0:
-                        spell.kill()
-                        print("spell removed")
+                elif parts[0] == "damage":
+                    if self.current_map.name == parts[1]:
+                        existingMob = list(filter(lambda mob: mob.id == int(parts[2]), self.mobs))
+                        if len(existingMob) > 0:
+                            existingMob[0].hit_points -= int(float(parts[3]))
+                            existingMob[0].total_slow *= float(parts[4])
+                            existingMob[0].update_hp_bar()
+                            if existingMob[0].hit_points <= 0:
+                                existingMob[0].dieing = True
+                                existingMob[0].die_animation()
+                else:
+                    if parts[1] == "player":
+                        if parts[0] not in self.maps_with_player:
+                            self.maps_with_player.append(parts[0])
 
+                    if self.current_map.name == parts[0]:
+                        if parts[1] == "mob":
+                            existingMob = list(filter(lambda mob: mob.id == int(parts[2]), self.mobs))
+                            if len(existingMob) > 0:
+                                mob = existingMob[0]
+                                mob.hit_points = int(parts[3])
+                                mob.pos = vec(round(float(parts[4])), round(float(parts[5])))
+                                mob.way = vec(round(float(parts[6])), round(float(parts[7])))
+                                mob.image_index = int(parts[8])
+                        elif parts[1] == "player":
+                            existingPlayer = list(filter(lambda player: player.id == int(parts[2]), self.other_players))
+                            player = None
+                            needs_update = False
+                            if len(existingPlayer) > 0:
+                                player = existingPlayer[0]
+                                needs_update = True
+                            else:
+                                player = OtherPlayer(self, round(float(parts[7])), round(float(parts[8])), int(parts[2]))
+                            player.pos = vec(round(float(parts[3])), round(float(parts[4])))
+                            player.hit_points = int(float(parts[5]))
+                            player.max_hit_points = int(float(parts[6]))
+                            player.way = vec(round(float(parts[7])), round(float(parts[8])))
+                            player.image_index = int(parts[9])
+                            if parts[10] != "none":
+                                player.weapon = parts[10]
+                            else:
+                                player.weapon = None
+                            player.body = parts[11]
+                            player.feet = parts[12]
+                            player.hands = parts[13]
+                            player.eyes = parts[14]
+                            player.hair = parts[15]
+                            player.update_hp_bar()
+                            if needs_update:
+                                player.update_images()
+                            player.ready = True
+                        elif parts[1] == "spell":
+                            existingSpell = list(filter(lambda spell: spell.id == int(parts[3]) and spell.player_id == int(parts[2]), self.other_spells))
+                            spell = None
+                            if len(existingSpell) > 0:
+                                spell = existingSpell[0]
+                            else:
+                                spell = OtherSpell(self, float(parts[4]), float(parts[5]), round(float(parts[6])), round(float(parts[7])), parts[9], int(parts[3]), int(parts[2]))
+                            spell.pos = vec(round(float(parts[4])), round(float(parts[5])))
+                            spell.hit = (parts[8] == "True")
+        self.update_messages = []
+        # update portion of the game loop
         self.players.update()
         if self.break_update_loop:
             self.break_update_loop = False
