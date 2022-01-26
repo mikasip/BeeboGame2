@@ -50,10 +50,10 @@ class Game:
         self.menu_open = False
         self.network:Network = None
         self.connected = False
-        self.game_state:GameState = None
+        self.game_state:GameState = GameState()
         self.break_update_loop = False
         self.main_menu(game_made = False)
-        self.send_list = []
+        self.send_list = ""
     
     def make_item(self, item, random_stats = False):
         new_item = None
@@ -474,31 +474,34 @@ class Game:
     def run(self):
         # game loop - set self.playing = False to end the game
         self.playing = True
-        self.network = Network()
+        self.network = Network(self)
         playerId = self.network.getId()
         if playerId != None:
             self.player.id = int(playerId)
             self.connected = True
         while self.playing:
             self.dt = self.clock.tick(FPS) / 1000
-            self.game_state = self.send_to_server(["get"])
             self.events()
             self.update()
             self.draw()
             if len(self.send_list) > 0:
                 self.send_to_server(self.send_list)
-                self.send_list = []
+                self.send_list = ""
+
+    def update_game_state(self, msg):
+        for update in msg.split(";"):
+            self.game_state.updateState(update)
 
     """
         Format:
         'map_name,type(player/mob),id,pos_x,pos_y,hp'
     """
     def add_to_send_list(self,data):
-        self.send_list.append(data)
+        self.send_list += data + ";"
 
     def send_to_server(self, data):
         if self.connected:
-            return self.network.send(data)
+            return self.network.send(data[:-1])
         return None
 
     def quit(self):

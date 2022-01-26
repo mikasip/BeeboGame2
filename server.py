@@ -1,65 +1,37 @@
-#!/usr/bin/env python3
 import socket
-from _thread import *
-from GameState import GameState
-import pickle
-import os
-from dotenv import load_dotenv
 
-load_dotenv()
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock.bind(('0.0.0.0', 5555))
 
-server = os.getenv('SERVER_IP')
-port = int(os.getenv('SERVER_PORT'))
+clientId = 1
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+print("Waiting for connection...")
 
-try:
-    s.bind((server, port))
-except socket.error as e:
-    str(e)
-
-s.listen(10)
-print("Waiting for a connection, Server Started")
-
-connected = set()
-game = None
-idCount = 0
-
-def threaded_client(conn, playerId):
-    global idCount
-    conn.send(str.encode(str(playerId)))
+while True:
+    clients = []
 
     while True:
         try:
-            data = pickle.loads(conn.recv(2048))
-            if game != None:
-                if len(data) == 0:
-                    break
-                else:
-                    try:
-                        for state in data:
-                            if state != "get":
-                                game.updateState(state)
-                    except Exception as e:
-                        print(e)
+            data, address = sock.recvfrom(128)
+        except:
+            continue
+        msg = data.decode()
+        if msg == "remove":
+            print('{} left the room'.format(address))
+            clients = list(filter(lambda c: (c[0], c[1]) != address, clients))
+        else:
+            print('connection from: {}'.format(address))
+            clients.append(address + (clientId,))
 
-                conn.send(pickle.dumps(game))
-            else:
-                break
-        except Exception as e:
-            print(e)
-            break
+            sock.sendto('{}'.format(clientId).encode(), address)
+            clientId += 1
 
-    print("Lost connection")
-    conn.close()
-
-while True:
-    conn, addr = s.accept()
-    print("Connected to:", addr)
-
-    playerId = idCount
-    idCount += 1
-    if game == None:
-        game = GameState()
-
-    start_new_thread(threaded_client, (conn, playerId))
+        for client in clients:
+            message = ""
+            for client2 in clients:
+                if client2 != client:
+                    addr, port, id = client2
+                    message += '{} {} {},'.format(addr, port, id)
+            if len(message) > 1:
+                message = message[:-1]
+                sock.sendto(message.encode(), (client[0], client[1]))
