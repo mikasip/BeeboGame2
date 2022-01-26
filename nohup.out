@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "./server.py", line 4, in <module>
+    sock.bind(('0.0.0.0', 5555))
+OSError: [Errno 98] Address already in use
+Waiting for connection...
