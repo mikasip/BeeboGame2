@@ -11,8 +11,6 @@ class Peer:
         self.id = id
         self.ip = ip
         self.port = port
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.sock.bind(('0.0.0.0', self.port))
         self.last_update = None
 
 class Network:
