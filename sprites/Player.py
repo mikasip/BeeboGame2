@@ -213,7 +213,7 @@ class Player(Fighter):
         self.vel = vec(0, 0)
         if self.hit_door_timer <= 0:
             keys = pg.key.get_pressed()
-            if len(keys) > 0:
+            if any(keys):
                 self.game.add_to_send_list(self.create_message_to_server())
             if keys[pg.K_RCTRL]:
                 self.speed_multiplier = self.run_multiplier

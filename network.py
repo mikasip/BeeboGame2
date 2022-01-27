@@ -7,10 +7,11 @@ import threading
 
 load_dotenv()
 class Peer:
-    def __init__(self, ip, port, id):
+    def __init__(self, ip, port, sending_port, id):
         self.id = id
         self.ip = ip
         self.port = port
+        self.sending_port = sending_port
         self.last_update = None
 
 class Network:
@@ -22,10 +23,12 @@ class Network:
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.bind(('0.0.0.0', 0))
+        self.sending_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.sending_sock.bind(('0.0.0.0', 0))
         server = os.getenv('SERVER_IP')
         port = int(os.getenv('SERVER_PORT'))
         self.server_address = (server,port)
-        self.sock.sendto(b'0', self.server_address)
+        self.sock.sendto(str(self.sending_sock.getsockname()[1]).encode(), self.server_address)
         self.listeners = []
         self.connected = False
 
@@ -61,22 +64,25 @@ class Network:
                 print("error when receiving a message")
                 continue
             data = data.decode()
-            ip, port = address
-            peer = list(filter(lambda p: p.ip == address[0] and p.port == port, self.peers))
+            ip, sending_port = address
+            peer = list(filter(lambda p: p.ip == ip and p.sending_port == sending_port, self.peers))
             if len(peer) > 0:
                 peer = peer[0]
                 peer.last_update = data
             elif address == self.server_address:
                 new_peers = []
                 for peer in data.split(","):
-                    ip, port, id = peer.split(' ')
+                    ip, port, sending_port, id = peer.split(' ')
                     port = int(port)
+                    sending_port = int(sending_port)
                     id = int(id)
-                    new_peers.append(Peer(ip, port, id))
+                    new_peers.append(Peer(ip, port, sending_port, id))
                     if len(list(filter(lambda p: p.ip == ip and p.port == port, self.peers))) == 0:
+                        self.sock.sendto(b'0',(ip, sending_port))
                         print('\nJoined to game:')
                         print('  ip:          {}'.format(ip))
-                        print('  source port: {}'.format(port))
+                        print('  destination port: {}'.format(port))
+                        print('  sending port: {}'.format(sending_port))
                 self.peers = new_peers
             
     #def send(self):
@@ -91,7 +97,7 @@ class Network:
     def send(self, msg):
         for peer in self.peers:
             try:
-                self.sock.sendto(msg.encode(), (peer.ip, peer.port))
+                self.sending_sock.sendto(msg.encode(), (peer.ip, peer.port))
             except:
                 print("error when sending a message")
                 pass

@@ -21,7 +21,7 @@ while True:
             clients = list(filter(lambda c: (c[0], c[1]) != address, clients))
         else:
             print('connection from: {}'.format(address))
-            clients.append(address + (clientId,))
+            clients.append(address + (msg, clientId))
 
             sock.sendto('{}'.format(clientId).encode(), address)
             clientId += 1
@@ -30,8 +30,8 @@ while True:
             message = ""
             for client2 in clients:
                 if client2 != client:
-                    addr, port, id = client2
-                    message += '{} {} {},'.format(addr, port, id)
+                    addr, port, sending_port, id = client2
+                    message += '{} {} {} {},'.format(addr, port, sending_port, id)
             if len(message) > 1:
                 message = message[:-1]
                 sock.sendto(message.encode(), (client[0], client[1]))

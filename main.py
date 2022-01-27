@@ -56,6 +56,7 @@ class Game:
         self.send_list = ""
         self.maps_with_player = []
         self.update_messages = []
+        self.count = 0
     
     def make_item(self, item, random_stats = False):
         new_item = None
@@ -492,6 +493,8 @@ class Game:
 
     def update_game_state(self, msg):
         self.update_messages.append(msg)
+        print(self.count)
+        self.count += 1
         
     """
         Format:

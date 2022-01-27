@@ -67,3 +67,4 @@ class SkillsGUI:
             surface.blit(q_img, (padding + 5,10))
             pg.draw.arc(surface, (0,0,0), [padding - 20, 5,40,40], 0, 2*pi, 2)
             padding += 50
+
