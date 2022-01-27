@@ -5,6 +5,8 @@ import socket
 import sys
 import threading
 
+s_port = 50001
+d_port = 50002
 load_dotenv()
 class Peer:
     def __init__(self, ip, port, id):
@@ -22,6 +24,8 @@ class Network:
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.bind(('0.0.0.0', 0))
+        self.port = self.sock.getsockname()[1]
+        print(self.port)
         server = os.getenv('SERVER_IP')
         port = int(os.getenv('SERVER_PORT'))
         self.server_address = (server,port)
@@ -30,11 +34,14 @@ class Network:
         self.connected = False
 
         while True:
-            data = self.sock.recv(1024).decode()
-
-            self.id = int(data)
-            print('checked in with server')
-            break
+            try:
+                data = self.sock.recv(1024).decode()
+                self.id = int(data)
+                print('checked in with server')
+                break
+            except:
+                print('connection failed')
+                break
         
         self.listener = threading.Thread(target=self.listen, daemon=True)
         self.listener.start()
@@ -51,10 +58,14 @@ class Network:
         return messages
 
     def listen(self):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.bind(('0.0.0.0', s_port))
         while True:
             try:
                 data, address = self.sock.recvfrom(1024)
+                print("message from: {}".format(address))
             except:
+                print("error when receiving a message")
                 continue
             data = data.decode()
             ip, port = address
@@ -73,6 +84,10 @@ class Network:
                         print('\nJoined to game:')
                         print('  ip:          {}'.format(ip))
                         print('  source port: {}'.format(port))
+                        print("punching a hole")
+                        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                        sock.bind(('0.0.0.0', s_port))
+                        sock.sendto(b'0', (ip, d_port))
                 self.peers = new_peers
             
     #def send(self):
@@ -87,13 +102,16 @@ class Network:
     def send(self, msg):
         for peer in self.peers:
             try:
-                self.sock.sendto(msg.encode(), (peer.ip, peer.port))
+                sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                sock.bind(('0.0.0.0', d_port))
+                sock.sendto(msg.encode(), (peer.ip, s_port))
             except:
+                print("error when sending a message")
                 pass
     
     def end_session(self):
         try:
-            self.sock.sendto("remove", self.server_address)
+            self.sock.sendto("remove".encode(), self.server_address)
         except:
             pass
 
