@@ -82,6 +82,7 @@ class Player(Fighter):
         self.img_walking2 = None
         self.hit_frames = None
         self.sprite_sheet:SpriteSheet = SpriteSheet()
+        self.prev_msg = ""
         self.update_sprites()
 
         
@@ -213,8 +214,6 @@ class Player(Fighter):
         self.vel = vec(0, 0)
         if self.hit_door_timer <= 0:
             keys = pg.key.get_pressed()
-            if any(keys):
-                self.game.add_to_send_list(self.create_message_to_server())
             if keys[pg.K_RCTRL]:
                 self.speed_multiplier = self.run_multiplier
             else:
@@ -513,6 +512,15 @@ class Player(Fighter):
                     self.collide_with_walls('y')
                     self.rect.center = self.hit_rect.center
                 self.skillsGUI.update_cooldowns(self)
+            msg = self.create_message_to_server()
+            if self.changes(msg):
+                self.game.add_to_send_list(msg)
+    
+    def changes(self, msg):
+        if msg != self.prev_msg:
+            self.prev_msg = msg
+            return True
+        return False
 
     def open_equipped(self):
         if self.open_dialog != self.attribute_selection:

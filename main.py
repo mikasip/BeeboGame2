@@ -482,8 +482,6 @@ class Game:
         if playerId != None:
             self.player.id = int(playerId)
             self.connected = True
-        self.add_to_send_list(self.player.create_message_to_server())
-        self.send_to_server(self.send_list)
         while self.playing:
             self.dt = self.clock.tick(FPS) / 1000
             self.events()
@@ -495,8 +493,6 @@ class Game:
 
     def update_game_state(self, msg):
         self.update_messages.append(msg)
-        print(self.count)
-        self.count += 1
         
     """
         Format:
@@ -520,7 +516,9 @@ class Game:
         for msg in self.network.getMessages():
             for updateString in msg.split(";"):
                 parts = updateString.split(",")
-                if parts[0] == "remove":
+                if len(parts) <= 2:
+                    self.add_to_send_list(self.player.create_message_to_server())
+                elif parts[0] == "remove":
                     if self.current_map.name == parts[1]:
                         existingPlayer = list(filter(lambda player: player.id == int(parts[2]), self.other_players))
                         if len(existingPlayer) > 0:

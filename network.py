@@ -80,8 +80,7 @@ class Network:
                         self.public = False
                     elif ip == peer.ip:
                         self.public = True
-                if len(data) > 5:
-                    peer.last_update = data
+                peer.last_update = data
             elif address == self.server_address:
                 new_peers = []
                 for peer in data.split(","):
