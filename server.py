@@ -20,8 +20,9 @@ while True:
             print('{} left the room'.format(address))
             clients = list(filter(lambda c: (c[0], c[1]) != address, clients))
         else:
+            private_ip, private_port = msg.split(" ")
             print('connection from: {}'.format(address))
-            clients.append(address + (msg, clientId))
+            clients.append(address + (private_ip, private_port, clientId))
 
             sock.sendto('{}'.format(clientId).encode(), address)
             clientId += 1
@@ -30,8 +31,8 @@ while True:
             message = ""
             for client2 in clients:
                 if client2 != client:
-                    addr, port, sending_port, id = client2
-                    message += '{} {} {} {},'.format(addr, port, sending_port, id)
+                    addr, port, private_ip, private_port, id = client2
+                    message += '{} {} {} {} {},'.format(addr, port, private_ip, private_port, id)
             if len(message) > 1:
                 message = message[:-1]
                 sock.sendto(message.encode(), (client[0], client[1]))

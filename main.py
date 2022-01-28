@@ -482,6 +482,8 @@ class Game:
         if playerId != None:
             self.player.id = int(playerId)
             self.connected = True
+        self.add_to_send_list(self.player.create_message_to_server())
+        self.send_to_server(self.send_list)
         while self.playing:
             self.dt = self.clock.tick(FPS) / 1000
             self.events()
