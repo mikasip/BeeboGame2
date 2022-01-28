@@ -569,6 +569,7 @@ class Game:
                             else:
                                 player = OtherPlayer(self, round(float(parts[7])), round(float(parts[8])), int(parts[2]))
                             player.pos = vec(round(float(parts[3])), round(float(parts[4])))
+                            player.map = parts[0]
                             player.hit_points = int(float(parts[5]))
                             player.max_hit_points = int(float(parts[6]))
                             player.way = vec(round(float(parts[7])), round(float(parts[8])))
@@ -623,7 +624,8 @@ class Game:
         for sprite in self.players:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
         for sprite in self.other_players:
-            self.screen.blit(sprite.image, self.camera.apply(sprite))
+            if sprite.map == self.current_map.name:
+                self.screen.blit(sprite.image, self.camera.apply(sprite))
         for sprite in self.spells:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
         for sprite in self.other_spells:

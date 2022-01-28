@@ -12,6 +12,7 @@ class OtherPlayer(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self, game.other_players)
         self.id = id
         self.game = game
+        self.map = ""
         self.pos = vec(x, y)
         self.way = vec(0,1)
         self.image = game.hero_img_standing
