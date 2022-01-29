@@ -126,7 +126,7 @@ class OtherItem(Item):
 
 class Spell(Item):
     def __init__(self, game, item):
-        super().__init__(game, item, 1, [])
+        super().__init__(game, item, 1, [], 1)
         self.damage = item["damage"]
         self.id = item["id"]
         self.strength_needed = item["strength_needed"]
