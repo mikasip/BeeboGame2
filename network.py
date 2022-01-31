@@ -57,18 +57,19 @@ class Network:
     
     def getMessages(self):
         messages = []
+        peerIds = []
         for peer in self.peers:
             if peer.last_update != None:
                 messages.append(peer.last_update)
+                peerIds.append(peer.id)
                 peer.last_update = None
-        return messages
+        return messages, peerIds
 
     def listen(self):
         while True:
             try:
                 data, address = self.sock.recvfrom(1024)
             except:
-                print("error when receiving a message")
                 continue
             data = data.decode()
             ip, port = address
@@ -111,6 +112,22 @@ class Network:
 
     def send(self, msg):
         for peer in self.peers:
+            try:
+                if peer.public == None:
+                    self.sock.sendto(msg.encode(), (peer.ip, peer.port))
+                    self.sock.sendto(msg.encode(), (peer.private_ip, peer.private_port))
+                elif peer.public:
+                    self.sock.sendto(msg.encode(), (peer.ip, peer.port))
+                else:
+                    self.sock.sendto(msg.encode(), (peer.private_ip, peer.private_port))
+            except:
+                print("error when sending a message")
+                pass
+    
+    def send_to_peer(self, msg, peer_id):
+        peers = list(filter(lambda p: p.id == peer_id, self.peers))
+        if len(peers) > 0:
+            peer = peers[0]
             try:
                 if peer.public == None:
                     self.sock.sendto(msg.encode(), (peer.ip, peer.port))

@@ -305,6 +305,8 @@ class Player(Fighter):
                     self.quick_use_cd = 1
                     self.change_item_count(backpack_items[0], -1)
                     self.use_consumable(item)
+                    if backpack_items[0].amount <= 0:
+                        self.quick_use.remove(self.quick_use[index])
     
     def make_spells(self):
         keys = ["W", "E", "R", "A", "S", "D"]
@@ -324,7 +326,7 @@ class Player(Fighter):
         weapons = list(filter(lambda item: item.type == "weapon", self.equipped_gear.equipped))
         if len(weapons) > 0:
             weapon = weapons[0].file
-        return self.game.current_map.name + "," +  "player" + "," + str(self.id) + "," + str(round(self.pos.x)) + "," + str(round(self.pos.y)) + "," + str(self.hit_points) + "," + str(self.max_hit_points) + "," + str(self.way.x) + "," + str(self.way.y) + "," + str(self.image_index) + "," + weapon + "," + self.body + "," + self.feet + "," + self.hands + "," + self.eyes + "," + self.hair
+        return self.game.current_map.name + "," +  "player" + "," + str(self.id) + "," + str(round(self.vel.x)) + "," + str(round(self.vel.y)) + "," + str(self.hit_points) + "," + str(self.max_hit_points) + "," + str(self.way.x) + "," + str(self.way.y) + "," + str(self.image_index) + "," + weapon + "," + self.body + "," + self.feet + "," + self.hands + "," + self.eyes + "," + self.hair
 
     def pick_item(self, item):
         if self.append_item(item):
@@ -388,7 +390,6 @@ class Player(Fighter):
                             self.open_dialog = self.door_locked_dialog
                             break
                     map_exists = False
-                    self.game.add_to_send_list("remove," + self.game.current_map.name + "," + str(self.id))
                     for tile_map in self.game.maps:
                         if tile_map.name == doorway.name:
                             self.game.current_map = tile_map
@@ -514,7 +515,7 @@ class Player(Fighter):
                 self.skillsGUI.update_cooldowns(self)
             msg = self.create_message_to_server()
             if self.changes(msg):
-                self.game.add_to_send_list(msg)
+                self.game.add_to_send_list(msg + "," + str(self.pos.x) + "," + str(self.pos.y))
     
     def changes(self, msg):
         if msg != self.prev_msg:

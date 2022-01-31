@@ -101,10 +101,10 @@ QUESTS = {
         'mission': 
             {
                 'type': 'collect',
-                'text': 'Collect 20 Red Slime, 20 Blue Slime, 20 Yellow Slime and 10 Dotted Slime.',
+                'text': 'Collect 10 Red Slime, 10 Blue Slime, 10 Yellow Slime and 5 Dotted Slime.',
                 'item': ['Red Slime', 'Blue Slime', 'Yellow Slime', 'Dotted Slime'],
                 'file': ['red_slime', 'blue_slime', 'yellow_slime', 'dotted_slime'],
-                'amount': [20, 20, 20, 10],
+                'amount': [10, 10, 10, 5],
             },
         'reward': {
             'items': [],
@@ -148,7 +148,7 @@ QUESTS = {
                 'text': 'Collect 30 Green Spider Legs',
                 'item': ['Green Spider Leg'],
                 'file': ['green_spider_leg'],
-                'amount': [30],
+                'amount': [20],
             },
         'reward': {
             'items': [],

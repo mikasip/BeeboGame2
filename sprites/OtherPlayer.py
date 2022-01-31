@@ -38,6 +38,7 @@ class OtherPlayer(pg.sprite.Sprite):
         self.img_walking1 = None
         self.img_walking2 = None
         self.hit_frames = None
+        self.vel = vec(0,0)
         self.sprite_sheet:SpriteSheet = SpriteSheet()
         self.update_images()
         self.update_hp_bar()
@@ -48,6 +49,7 @@ class OtherPlayer(pg.sprite.Sprite):
                 self.kill()
                 return
             angle = angle_between(vec(1,0), self.way)
+            self.pos += self.vel * self.game.dt
             self.current_image = self.sprite_sheet.get_image(self.image_index*150, 0, 150, 150)
             self.image, self.rect = rotate(self.current_image, angle, vec(0,0))
             self.rect.center = (self.pos.x, self.pos.y)

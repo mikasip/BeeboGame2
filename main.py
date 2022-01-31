@@ -36,7 +36,7 @@ class Game:
     def __init__(self):
         pg.init()
         
-        self.screen = pg.display.set_mode((WIDTH, HEIGHT), pg.FULLSCREEN | pg.SCALED)
+        self.screen = pg.display.set_mode((WIDTH, HEIGHT))#, pg.FULLSCREEN | pg.SCALED)
         pg.display.set_caption(TITLE)
         self.clock = pg.time.Clock()
         self.img_folder = path.join(path.dirname(__file__), 'img')
@@ -57,6 +57,7 @@ class Game:
         self.maps_with_player = []
         self.update_messages = []
         self.count = 0
+        self.known_peers = []
     
     def make_item(self, item, random_stats = False):
         new_item = None
@@ -487,6 +488,9 @@ class Game:
             self.events()
             self.update()
             self.draw()
+            for peer_id in list(map(lambda peer: peer.id, self.network.peers)):
+                if peer_id not in self.known_peers:
+                    self.network.send_to_peer(self.player.create_message_to_server() + "," + str(self.player.pos.x) + "," + str(self.player.pos.y), peer_id)
             if len(self.send_list) > 0:
                 self.send_to_server(self.send_list)
                 self.send_list = ""
@@ -513,7 +517,11 @@ class Game:
         sys.exit()
 
     def update(self):
-        for msg in self.network.getMessages():
+        messages, peer_ids = self.network.getMessages()
+        for peer_id in peer_ids:
+            if peer_id not in self.known_peers:
+                self.known_peers.append(peer_id)
+        for msg in messages:
             for updateString in msg.split(";"):
                 parts = updateString.split(",")
                 if len(parts) <= 2:
@@ -547,8 +555,10 @@ class Game:
                                 existingMob[0].die_animation()
                 else:
                     if parts[1] == "player":
-                        if parts[0] not in self.maps_with_player:
-                            self.maps_with_player.append(parts[0])
+                        if parts[0] != self.current_map.name:
+                            players = list(filter(lambda player: player.id == int(parts[2]), self.other_players))
+                            for player in players:
+                                player.kill()
 
                     if self.current_map.name == parts[0]:
                         if parts[1] == "mob":
@@ -568,7 +578,8 @@ class Game:
                                 needs_update = True
                             else:
                                 player = OtherPlayer(self, round(float(parts[7])), round(float(parts[8])), int(parts[2]))
-                            player.pos = vec(round(float(parts[3])), round(float(parts[4])))
+                                self.network.send_to_peer(self.player.create_message_to_server() + "," + str(self.player.pos.x) + "," + str(self.player.pos.y), int(parts[2]))
+                            player.vel = vec(round(float(parts[3])), round(float(parts[4])))
                             player.map = parts[0]
                             player.hit_points = int(float(parts[5]))
                             player.max_hit_points = int(float(parts[6]))
@@ -583,6 +594,8 @@ class Game:
                             player.hands = parts[13]
                             player.eyes = parts[14]
                             player.hair = parts[15]
+                            if len(parts) > 17:
+                                player.pos = vec(round(float(parts[16])), round(float(parts[17])))
                             player.update_hp_bar()
                             if needs_update:
                                 player.update_images()

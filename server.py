@@ -33,6 +33,6 @@ while True:
                 if client2 != client:
                     addr, port, private_ip, private_port, id = client2
                     message += '{} {} {} {} {},'.format(addr, port, private_ip, private_port, id)
-            if len(message) > 1:
+            if len(message) > 5:
                 message = message[:-1]
                 sock.sendto(message.encode(), (client[0], client[1]))
